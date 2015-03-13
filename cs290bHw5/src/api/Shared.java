@@ -23,31 +23,30 @@
  */
 package api;
 
-import system.Return;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-
 /**
  *
  * @author Peter Cappello
+ * @param <T> the shared object's type.
  */
-public interface Space extends Remote 
+abstract public class Shared<T>
 {
-    public static int PORT = 8001;
-    public static String SERVICE_NAME = "Space";
-
-    Return compute( Task task ) throws RemoteException;
+    final private T shared;
     
-    Return call( Task task, Shared shared ) throws RemoteException;
+    public Shared( final T shared ) { this.shared = shared; }
+    
+    T shared() { return shared; }
     
     /**
      *
-     * @param task 
-     * @throws RemoteException
+     * @param shared
+     * @return
      */
-    void call( Task task ) throws RemoteException;
-
-    Return take() throws RemoteException;
-
-    void exit() throws RemoteException;
+    abstract public boolean isNewer( final T shared );
+    
+    /**
+     *
+     * @param shared
+     * @return
+     */
+    public T shared( T shared ) { return isNewer( shared ) ? shared : this.shared; }
 }
