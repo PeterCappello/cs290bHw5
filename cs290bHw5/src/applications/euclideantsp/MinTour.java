@@ -30,19 +30,19 @@ import api.TaskCompose;
  *
  * @author Peter Cappello
  */
-public class MinTour extends TaskCompose<Tour>
+public class MinTour extends TaskCompose<TaskEuclideanTsp>
 {
     @Override
     public ReturnValue call() 
     {
-        Tour shortestTour = args().remove( 0 );
-        for ( Tour tour : args() ) 
+        TaskEuclideanTsp minTour = args().remove( 0 );
+        for ( TaskEuclideanTsp tour : args() ) 
         {
-            if ( tour.compareTo( shortestTour ) < 0 )
+            if ( tour.cost() < minTour.cost() )
             {
-                shortestTour = tour;
+                minTour = tour;
             }
         }
-        return new ReturnValue<>( this, shortestTour );
+        return new ReturnValue<>( this, minTour );
     }
 }

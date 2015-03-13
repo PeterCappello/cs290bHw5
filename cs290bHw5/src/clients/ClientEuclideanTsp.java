@@ -33,7 +33,6 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import applications.euclideantsp.TaskEuclideanTsp;
-import applications.euclideantsp.Tour;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,7 +41,7 @@ import java.util.logging.Logger;
  *
  * @author Peter Cappello
  */
-public class ClientEuclideanTsp extends Client<Tour>
+public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 {
     // configure application
     static private final int NUM_PIXALS = 600;
@@ -62,17 +61,23 @@ public class ClientEuclideanTsp extends Client<Tour>
 	{ 3, 6 }
     };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
-    static private final int NUM_COMPUTERS = 4;
+    static private final int NUM_COMPUTERS = 2;
     static private List<Integer> unvisitedCities()
     {
         final List<Integer> unvisitedCities = new ArrayList<>();
-        for ( int city = 0; city < CITIES.length; city++ )
+        for ( int city = 1; city < CITIES.length; city++ )
         {
             unvisitedCities.add( city );
         }
         return unvisitedCities;
     }
-    static private final Task TASK = new TaskEuclideanTsp( new ArrayList<>(), unvisitedCities() );
+    static private List<Integer> partialTour()
+    {
+        final List<Integer> partialTour = new ArrayList<>();
+        partialTour.add( 0 );
+        return partialTour;
+    }
+    static private final Task TASK = new TaskEuclideanTsp( partialTour(), unvisitedCities() );
     
     public ClientEuclideanTsp() throws RemoteException
     { 
@@ -85,7 +90,7 @@ public class ClientEuclideanTsp extends Client<Tour>
     }
     
     @Override
-    public JLabel getLabel( final Tour tour )
+    public JLabel getLabel( final TaskEuclideanTsp tour )
     {
         List<Integer> cityList = tour.tour();
         Logger.getLogger( ClientEuclideanTsp.class.getCanonicalName() ).log(Level.INFO, tourToString( cityList ) );

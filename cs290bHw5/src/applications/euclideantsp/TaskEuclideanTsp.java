@@ -28,17 +28,17 @@ import api.ReturnValue;
 import api.Task;
 import api.TaskRecursive;
 import clients.ClientEuclideanTsp;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import util.PermutationEnumerator;
+import java.util.Stack;
 
 /**
- * Find a tour of minimum cost among those that start with city 0, 
- * followed by city secondCity.
+ * Find a tour of minimum minCost among those that start with city 0, 
+ followed by city secondCity.
  * @author Peter Cappello
  */
-public class TaskEuclideanTsp extends TaskRecursive<Tour>
+public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
+//public class TaskEuclideanTsp extends TaskRecursive<Tour>
 { 
     final static private double[][] CITIES = ClientEuclideanTsp.CITIES;
     final static Integer ONE = 1;
@@ -47,74 +47,102 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     
     final private List<Integer> partialTour;
     final private List<Integer> unvisitedCities;
+    final private double cost;
             
     public TaskEuclideanTsp( List<Integer> partialTour, List<Integer> unvisitedCities )
     {
         this.partialTour = partialTour;
         this.unvisitedCities = unvisitedCities;
+        cost = tourDistance( CITIES, partialTour );
+    }
+    
+    TaskEuclideanTsp( TaskEuclideanTsp parentTask, Integer newCity )
+    {
+        partialTour = new LinkedList<>( parentTask.partialTour );
+        cost = parentTask.cost // compute cost in O(1) time using parentTask.cost
+                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
+                + distance( CITIES[ 0 ], CITIES[ newCity ] )
+                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
+        
+        unvisitedCities = new LinkedList<>( parentTask.unvisitedCities );     
+        partialTour.add( newCity );
+        unvisitedCities.remove( newCity );
     }
     
     @Override
     public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
     
     /**
-     * Produce a tour of minimum cost from the set of tours, having as its
-     * elements each tour consisting of the sequence of cities in partialTour 
-     * followed by a permutation of the unvisitedCities.
-     * @return a tour of minimum cost.
+     * Produce a tour of minimum minCost from the set of tours, having as its
+ elements each tour consisting of the sequence of cities in partialTour 
+ followed by a permutation of the unvisitedCities.
+     * @return a tour of minimum minCost.
      */
      @Override
     public ReturnValue solve() 
     {
-        // initial value for shortestTour and its distance.
-        List<Integer> shortestTour = new ArrayList<>( partialTour );
-        shortestTour.addAll( unvisitedCities );
-        double shortestTourDistance = tourDistance( CITIES, shortestTour );
-
-        // Use my permutation enumerator
-        PermutationEnumerator<Integer> permutationEnumerator = new PermutationEnumerator<>( unvisitedCities );
-        for ( List<Integer> subtour = permutationEnumerator.next(); subtour != null; subtour = permutationEnumerator.next() ) 
+        Stack<TaskEuclideanTsp> stack = new Stack<>();
+        stack.push( this );
+        double minCost = Double.MAX_VALUE;
+        TaskEuclideanTsp minTour = this;
+        while (  ! stack.isEmpty() ) 
         {
-            List<Integer> tour = new ArrayList<>( partialTour );
-            tour.addAll( subtour );
-            if ( tour.indexOf( ONE ) >  tour.indexOf( TWO ) )
-            {
-                continue; // skip tour; it is the reverse of another.
-            }
-            double tourDistance = tourDistance( CITIES, tour );
-            if ( tourDistance < shortestTourDistance )
-            {
-                shortestTour = tour;
-                shortestTourDistance = tourDistance;
-            }
-        }
-        return new ReturnValue<>( this, new Tour( shortestTour, shortestTourDistance ) );
+            TaskEuclideanTsp currentTask = stack.pop();
+            List<TaskEuclideanTsp> children = currentTask.children();
+            for ( TaskEuclideanTsp child : children )
+            { 
+                if ( child.cost <= minCost )
+                { 
+                    if ( child.isComplete() )
+                    { 
+                        minCost = child.cost;
+                        minTour = child;
+                    } 
+                    else 
+                    { 
+                        stack.push( child );
+                    } 
+                } 
+            }  
+        } 
+        return new ReturnValue<>( this, minTour );
     }
 
     @Override
     public ReturnSubtasks decompose() 
     {
-        final List<Task> subtasks = new  LinkedList<>();
-        for ( Integer unvisitedCity : unvisitedCities )
+        final List<Task> children = new  LinkedList<>();
+        for ( Integer city : unvisitedCities )
         {
-            List<Integer> subtaskPartialTour = new ArrayList<>( partialTour );
-            List<Integer> subtaskUnvisitedCities = new ArrayList<>( unvisitedCities );
-            subtaskUnvisitedCities.remove( unvisitedCity );
-            subtaskPartialTour.add( unvisitedCity ); // extend tour with this city.
-            subtasks.add( new TaskEuclideanTsp( subtaskPartialTour, subtaskUnvisitedCities ) );
+            children.add( new TaskEuclideanTsp( this, city ) );
         }
-        return new ReturnSubtasks( new MinTour(), subtasks );
+        return new ReturnSubtasks( new MinTour(), children );
     }
+    
+    private List<TaskEuclideanTsp> children()
+    {
+        List<TaskEuclideanTsp> children = new LinkedList<>();
+        for ( Integer city : unvisitedCities )
+        {
+            children.add( new TaskEuclideanTsp( this, city ) );
+        }
+        return children;
+    }
+    
+    public double cost() { return cost; }
+    
+    public List<Integer> tour() { return partialTour; }
     
     @Override
     public String toString()
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append( getClass() );
-        stringBuilder.append( "\n\tPartial tour: " );
+        stringBuilder.append( "\n\tPartial tour & its costs: " );
         partialTour.stream().forEach(( city ) -> 
         {
-            stringBuilder.append( city ).append( " " );
+            stringBuilder.append( city ).append( ": " );
+            stringBuilder.append( CITIES[ city ][ 0 ] ).append( " " ).append( CITIES[ city ][ 1 ] ).append( '\n' );
         } );
         stringBuilder.append( "\n\tUnvisited cities: " );
         unvisitedCities.stream().forEach(( city ) -> 
@@ -125,14 +153,14 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     }
     
     public static double tourDistance( final double[][] cities, final List<Integer> tour )
-   {
-       double cost = 0.0;
-       for ( int city = 0; city < tour.size() - 1; city ++ )
-       {
-           cost += distance( cities[ tour.get( city ) ], cities[ tour.get( city + 1 ) ] );
-       }
-       return cost + distance( cities[ tour.get( tour.size() - 1 ) ], cities[ tour.get( 0 ) ] );
-   }
+    {
+        double cost = 0.0;
+        for ( int city = 0; city < tour.size() - 1; city ++ )
+        {
+            cost += distance( cities[ tour.get( city ) ], cities[ tour.get( city + 1 ) ] );
+        }
+        return cost + distance( cities[ tour.get( tour.size() - 1 ) ], cities[ 0 ] );
+    }
    
    private static double distance( final double[] city1, final double[] city2 )
    {
@@ -140,4 +168,6 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
        final double deltaY = city1[ 1 ] - city2[ 1 ];
        return Math.sqrt( deltaX * deltaX + deltaY * deltaY );
    }
+   
+   private boolean isComplete() { return unvisitedCities.isEmpty(); }
 }
