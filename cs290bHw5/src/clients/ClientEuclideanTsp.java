@@ -23,7 +23,9 @@
  */
 package clients;
 
+import api.Shared;
 import api.Task;
+import applications.euclideantsp.SharedMinDouble;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -78,6 +80,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
         return partialTour;
     }
     static private final Task TASK = new TaskEuclideanTsp( partialTour(), unvisitedCities() );
+    static private final Shared SHARED = new SharedMinDouble( Double.MAX_VALUE );
     
     public ClientEuclideanTsp() throws RemoteException
     { 
@@ -86,7 +89,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
     
     public static void main( String[] args ) throws Exception
     {
-        Client.runClient( client(), NUM_COMPUTERS, TASK );
+        Client.runClient( client(), NUM_COMPUTERS, TASK, SHARED );
     }
     
     @Override

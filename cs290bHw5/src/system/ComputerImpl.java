@@ -55,11 +55,12 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
     /**
      * Execute a Task.
      * @param task to be executed.
+     * @param shared
      * @return the return value of the Task call method.
      * @throws RemoteException
      */
     @Override
-    public Return execute( Task task ) throws RemoteException 
+    public Return execute( Task task, Shared shared ) throws RemoteException 
     { 
         numTasks++;
         final long startTime = System.nanoTime();
@@ -100,7 +101,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         WorkerImpl() {}
 
         @Override
-        public Return execute( Task task ) throws RemoteException 
+        public Return execute( Task task, Shared shared ) throws RemoteException 
         {
             numTasks++;
             final long startTime = System.nanoTime();

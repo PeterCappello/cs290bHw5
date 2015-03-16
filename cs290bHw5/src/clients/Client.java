@@ -24,6 +24,7 @@
 package clients;
 
 import api.ReturnValue;
+import api.Shared;
 import api.Space;
 import api.Task;
 import java.awt.BorderLayout;
@@ -90,12 +91,12 @@ abstract public class Client<T> extends JFrame
     
     abstract JLabel getLabel( T returnValue );
     
-    static public void runClient( Client client, int numComputers, Task task ) throws RemoteException
+    static public void runClient( Client client, int numComputers, Task task, Shared shared ) throws RemoteException
     {
         System.setSecurityManager( new SecurityManager() );
         client.begin();
         Space space = client.getSpace( numComputers );
-        ReturnValue<Integer> result = ( ReturnValue<Integer> ) space.compute( task );
+        ReturnValue<Integer> result = ( ReturnValue<Integer> ) space.compute( task, shared );
         client.add( client.getLabel( result.value() ) );
         client.end();
     }

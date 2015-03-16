@@ -21,36 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package clients;
+package applications.euclideantsp;
 
-import api.Task;
-import applications.fibonacci.TaskFibonacci;
-import java.rmi.RemoteException;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
+import api.Shared;
 
 /**
  *
  * @author Peter Cappello
  */
-public class ClientFibonacci extends Client<Integer>
+public class SharedMinDouble extends Shared<Double>
 {
-    // configure application
-    static private final int N = 16; // F(16) = 987
-    static private  final int NUM_COMPUTERS = 2;
-    static private  final Task TASK = new TaskFibonacci( N );
-    static private  Client client() throws RemoteException { return new ClientFibonacci(); }
-    
-    public ClientFibonacci() throws RemoteException { super( "Fibonacci Number" ); }
-
-    public static void main( String[] args ) throws Exception
-    {  
-        Client.runClient( client(), NUM_COMPUTERS, TASK, null );
-    }
+    /**
+     *
+     * @param shared
+     */
+    public SharedMinDouble( Double shared ) { super( shared ); }
     
     @Override
-    JLabel getLabel( Integer returnValue )
-    { 
-        return new JLabel( " " + TASK.toString() + "= " + returnValue + " ", SwingConstants.CENTER ) ; 
-    }
+    public boolean isNewer( Double shared ) { return shared() < shared; }
 }

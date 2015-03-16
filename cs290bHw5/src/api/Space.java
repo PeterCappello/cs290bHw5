@@ -38,7 +38,7 @@ public interface Space extends Remote
 
     Return compute( Task task ) throws RemoteException;
     
-    Return call( Task task, Shared shared ) throws RemoteException;
+    Return compute( Task task, Shared shared ) throws RemoteException;
     
     /**
      *

@@ -23,6 +23,7 @@
  */
 package system;
 
+import api.Shared;
 import api.Task;
 import java.io.Serializable;
 
@@ -32,10 +33,19 @@ import java.io.Serializable;
  */
 abstract public class Return implements Serializable
 {
-    private long taskRunTime;
+    final private Shared shared;
+          private long taskRunTime;
+    
+    /**
+     *
+     * @param shared
+     */
+    public Return( Shared shared ) { this.shared = shared; }
 
     public long taskRunTime() { return taskRunTime; }
     public void taskRunTime( long taskRunTime ) { this.taskRunTime = taskRunTime; }
+    
+    public Shared shared() { return shared; }
     
     /**
      *

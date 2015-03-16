@@ -63,7 +63,7 @@ public class ClientMandelbrotSet extends Client<IterationCounts>
      */
     public static void main( String[] args ) throws Exception
     {  
-        Client.runClient( client(), NUM_COMPUTERS, TASK );
+        Client.runClient( client(), NUM_COMPUTERS, TASK, null );
     }
     
     @Override

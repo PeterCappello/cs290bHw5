@@ -53,7 +53,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
     final private AtomicInteger taskIds = new AtomicInteger();
     final private BlockingQueue<Task>   readyTaskQ = new LinkedBlockingQueue<>();
     final private BlockingQueue<Return> resultQ    = new LinkedBlockingQueue<>();
-    final private Map<Computer,ComputerProxy> computerProxies = Collections.synchronizedMap( new HashMap<>() );  // !! make concurrent
+    final private Map<Computer, ComputerProxy> computerProxies = Collections.synchronizedMap( new HashMap<>() );  // !! make concurrent
     final private Map<Integer, TaskCompose>   waitingTaskMap  = Collections.synchronizedMap( new HashMap<>() );
           private Shared shared;
         
@@ -84,7 +84,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
      * @return
      */
     @Override
-    public Return call( Task task, Shared shared )
+    public Return compute( Task task, Shared shared )
     {
         shared( shared );
         call( task );
@@ -148,7 +148,14 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
                       .rebind(Space.SERVICE_NAME, new SpaceImpl() );
     }
 
-    synchronized public void processResult( Task parentTask, Return result ) { result.process( parentTask, this ); }
+    synchronized public void processResult( Task parentTask, Return result )
+    { 
+        if ( result.shared() != null )
+        {
+            shared( result.shared() );
+        }
+        result.process( parentTask, this ); 
+    }
     
     public int makeTaskId() { return taskIds.incrementAndGet(); }
     
@@ -178,15 +185,14 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
         waitingTaskMap.remove( composeId ); 
     }
     
+    synchronized private Shared shared() { return shared; }
+        
     synchronized private void shared( Shared shared )
     {
-        if ( shared == null )
+        assert shared != null;
+        if ( this.shared == null || this.shared.isNewer( shared ) )
         {
             this.shared = shared;
-        }
-        else
-        {
-            shared.shared( shared );
         }
     }
     
@@ -203,7 +209,6 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
             {
                 WorkerProxy workerProxy = new WorkerProxy( worker );
                 workerMap.put( worker, workerProxy );
-//                workerProxy.start();
             }
         }
         
@@ -216,9 +221,9 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
         }
 
         @Override
-        public Return execute( Task task ) throws RemoteException
+        public Return execute( Task task, Shared shared ) throws RemoteException
         { 
-            return computer.execute( task );
+            return computer.execute( task, shared );
         }
         
         @Override
@@ -263,7 +268,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
             @Override
             public Return execute( Task task ) throws RemoteException 
             {
-                return worker.execute( task );
+                return worker.execute( task, shared() );
             }     
         }
     }

@@ -34,12 +34,12 @@ abstract public class Shared<T>
     
     public Shared( final T shared ) { this.shared = shared; }
     
-    T shared() { return shared; }
+    public T shared() { return shared; }
     
     /**
      *
      * @param shared
-     * @return
+     * @return true if and only if shared is null or newer than this.shared.
      */
     abstract public boolean isNewer( final T shared );
     
@@ -48,5 +48,5 @@ abstract public class Shared<T>
      * @param shared
      * @return
      */
-    public T shared( T shared ) { return isNewer( shared ) ? shared : this.shared; }
+//    public T shared( T shared ) { return isNewer( shared ) ? shared : this.shared; }
 }
