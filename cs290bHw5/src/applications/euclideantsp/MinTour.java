@@ -38,7 +38,7 @@ public class MinTour extends TaskCompose<TaskEuclideanTsp>
         TaskEuclideanTsp minTour = args().remove( 0 );
         for ( TaskEuclideanTsp tour : args() ) 
         {
-            if ( tour.cost() < minTour.cost() )
+            if ( minTour == null || ( tour != null && tour.cost() < minTour.cost() ) )
             {
                 minTour = tour;
             }

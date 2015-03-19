@@ -26,6 +26,7 @@ import java.io.Serializable;
 import system.Return;
 import java.util.concurrent.Callable;
 import system.Computer2Space;
+import system.ComputerImpl;
 
 /**
  *
@@ -36,6 +37,7 @@ abstract public class Task implements Serializable, Callable<Return>
     private int id;
     private int composeId;
     private int composeArgNum;
+    private ComputerImpl computerImpl;
     protected Computer2Space space;
     
     @Override
@@ -49,4 +51,10 @@ abstract public class Task implements Serializable, Callable<Return>
     
     public int  composeId() { return composeId; }
     public void composeId( int composeId ) { this.composeId = composeId; }
+    
+    public void computer( ComputerImpl computerImpl ) { this.computerImpl = computerImpl; }
+    
+    public Shared shared() { return computerImpl.shared(); }
+    
+    public void shared( Shared shared ) { computerImpl.shared( shared ); }
 }

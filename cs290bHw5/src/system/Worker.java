@@ -37,9 +37,9 @@ public interface Worker extends Remote
     /**
      * Execute Task.
      * @param task 
-     * @param shared 
      * @return Task Return object
      * @throws RemoteException
      */
-    Return execute( Task task, Shared shared ) throws RemoteException;
+//    Return execute( Task task, Shared shared ) throws RemoteException;
+    Return execute( Task task ) throws RemoteException;
 }

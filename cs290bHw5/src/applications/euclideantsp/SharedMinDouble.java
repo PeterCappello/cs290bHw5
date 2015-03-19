@@ -26,17 +26,27 @@ package applications.euclideantsp;
 import api.Shared;
 
 /**
- *
+ * 
  * @author Peter Cappello
  */
-public class SharedMinDouble extends Shared<Double>
+final public class SharedMinDouble extends Shared<SharedMinDouble>
 {
+    private double minCost;
+    
     /**
      *
-     * @param shared
+     * @param minCost
      */
-    public SharedMinDouble( Double shared ) { super( shared ); }
+    public SharedMinDouble( double minCost ) { this.minCost = minCost; }
+    
+     @Override
+    synchronized public void copy( SharedMinDouble that ) { this.minCost = that.minCost(); }
     
     @Override
-    public boolean isNewer( Double shared ) { return shared() < shared; }
+    synchronized public Shared duplicate() { return new SharedMinDouble( minCost ); }
+    
+    @Override
+    synchronized public boolean isOlderThan( final SharedMinDouble that ) { return minCost > that.minCost(); }
+    
+    synchronized public double minCost() { return minCost; }
 }

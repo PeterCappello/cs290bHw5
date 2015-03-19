@@ -45,7 +45,7 @@ public class ClientFibonacci extends Client<Integer>
 
     public static void main( String[] args ) throws Exception
     {  
-        Client.runClient( client(), NUM_COMPUTERS, TASK, null );
+        Client.runClient( client(), NUM_COMPUTERS, TASK );
     }
     
     @Override

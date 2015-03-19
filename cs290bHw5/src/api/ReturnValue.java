@@ -40,7 +40,7 @@ public class ReturnValue<T> extends Return
     
     public ReturnValue( final Task task, final T value ) 
     { 
-        assert value != null;
+        assert task != null;
         composeId = task.composeId();
         composeArgNum = task.composeArgNum();
         this.value = value; 

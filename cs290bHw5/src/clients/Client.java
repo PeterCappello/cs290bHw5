@@ -83,13 +83,23 @@ abstract public class Client<T> extends JFrame
         SpaceImpl space = new SpaceImpl();
         for ( int i = 0; i < numComputers; i++ )
         {
-            ComputerImpl computer = new ComputerImpl();
+            ComputerImpl computer = new ComputerImpl( space );
             space.register( computer, computer.workerList() );
         }
         return space;
     }
     
     abstract JLabel getLabel( T returnValue );
+    
+    static public void runClient( Client client, int numComputers, Task task ) throws RemoteException
+    {
+        System.setSecurityManager( new SecurityManager() );
+        client.begin();
+        Space space = client.getSpace( numComputers );
+        ReturnValue<Integer> result = ( ReturnValue<Integer> ) space.compute( task );
+        client.add( client.getLabel( result.value() ) );
+        client.end();
+    }
     
     static public void runClient( Client client, int numComputers, Task task, Shared shared ) throws RemoteException
     {

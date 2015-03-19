@@ -53,10 +53,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
     final private AtomicInteger taskIds = new AtomicInteger();
     final private BlockingQueue<Task>   readyTaskQ = new LinkedBlockingQueue<>();
     final private BlockingQueue<Return> resultQ    = new LinkedBlockingQueue<>();
-    final private Map<Computer, ComputerProxy> computerProxies = Collections.synchronizedMap( new HashMap<>() );  // !! make concurrent
-    final private Map<Integer, TaskCompose>   waitingTaskMap  = Collections.synchronizedMap( new HashMap<>() );
-          private Shared shared;
-        
+    final private Map<Computer, ComputerProxy> computerProxies = Collections.synchronizedMap( new HashMap<>() );
+    final private Map<Integer, TaskCompose>   waitingTaskMap   = Collections.synchronizedMap( new HashMap<>() );
+          private Shared shared; // mutable but thread-safe: its state changes are synchronized on itself.
+    
     public SpaceImpl() throws RemoteException 
     {
         Logger.getLogger(getClass().getName() ).log( Level.INFO, "Space started." );
@@ -73,6 +73,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
     @Override
     public Return compute( Task task )
     {
+        for ( ComputerProxy computerProxy : computerProxies.values() )
+        {
+            computerProxy.notifyWorkerProxies();
+        }
         call( task );
         return take();
     }
@@ -86,7 +90,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
     @Override
     public Return compute( Task task, Shared shared )
     {
-        shared( shared );
+        initShared( shared );
         call( task );
         return take();
     }
@@ -136,8 +140,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
     public void register( Computer computer, List<Worker> workerList ) throws RemoteException
     {
         final ComputerProxy computerproxy = new ComputerProxy( computer, workerList );
-        computerproxy.start();
         computerProxies.put( computer, computerproxy );
+        computerproxy.startWorkerProxies();
         Logger.getLogger(SpaceImpl.class.getName()).log(Level.INFO, "Computer {0} started.", computerproxy.computerId);
     }
     
@@ -150,10 +154,6 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
 
     synchronized public void processResult( Task parentTask, Return result )
     { 
-        if ( result.shared() != null )
-        {
-            shared( result.shared() );
-        }
         result.process( parentTask, this ); 
     }
     
@@ -185,18 +185,28 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
         waitingTaskMap.remove( composeId ); 
     }
     
-    synchronized private Shared shared() { return shared; }
-        
-    synchronized private void shared( Shared shared )
+    @Override
+    public void upShared( Shared that )
     {
-        assert shared != null;
-        if ( this.shared == null || this.shared.isNewer( shared ) )
+        if ( this.shared.shared( that ) )
         {
-            this.shared = shared;
+            for ( ComputerProxy computerProxy : computerProxies.values() )
+            {
+                computerProxy.downShared( this.shared );
+            }
         }
     }
     
-    private class ComputerProxy implements Computer 
+    private void initShared( Shared shared )
+    {
+        this.shared = shared;
+        for ( ComputerProxy computerProxy : computerProxies.values() )
+        {
+            computerProxy.initShared( this.shared );
+        }
+    }
+    
+    private class ComputerProxy extends Thread implements Computer 
     {
         final private Computer computer;
         final private int computerId = computerIds.getAndIncrement();
@@ -212,7 +222,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
             }
         }
         
-        private void start()
+        private void startWorkerProxies()
         {
             for ( WorkerProxy workerProxy : workerMap.values() )
             {
@@ -221,9 +231,9 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
         }
 
         @Override
-        public Return execute( Task task, Shared shared ) throws RemoteException
+        public Return execute( Task task ) throws RemoteException
         { 
-            return computer.execute( task, shared );
+            return computer.execute( task );
         }
         
         @Override
@@ -232,7 +242,57 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
             try { computer.exit(); } 
             catch ( RemoteException ignore ) {} 
         }
-
+        
+        @Override
+        public void run()
+        {
+            while ( true )
+            {
+                try { wait(); } 
+                catch ( InterruptedException ex ) 
+                {
+                    Logger.getLogger( SpaceImpl.class.getName() ).log( Level.SEVERE, null, ex );
+                }
+                try { computer.downShared( shared.duplicate() ); } 
+                catch ( RemoteException ex ) 
+                {
+                    Logger.getLogger( SpaceImpl.class.getName() ).log( Level.SEVERE, null, ex );
+                }
+            }
+        }
+        
+        @Override
+        public void downShared( Shared shared )
+        {
+            try { computer.downShared( shared.duplicate() ); } 
+            catch ( RemoteException ex ) 
+            {
+                Logger.getLogger( SpaceImpl.class.getName() ).log( Level.SEVERE, null, ex );
+            }
+        }
+        
+        public void initShared( Shared shared )
+        {            
+            try { computer.downShared( shared.duplicate() ); } 
+            catch ( RemoteException ex ) 
+            {
+                Logger.getLogger( SpaceImpl.class.getName() ).log( Level.SEVERE, null, ex );
+            }
+            notifyWorkerProxies();
+//            for ( WorkerProxy workerProxy : workerMap.values() )
+//            {
+//               synchronized ( workerProxy ) { workerProxy.notify(); } 
+//            }
+        }
+        
+        private void notifyWorkerProxies()
+        {
+            for ( WorkerProxy workerProxy : workerMap.values() )
+            {
+               synchronized ( workerProxy ) { workerProxy.notify(); } 
+            }
+        }
+     
         private class WorkerProxy extends Thread implements Worker
         {
             final private Worker worker;
@@ -242,6 +302,11 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
             @Override
             public void run()
             {
+                try { synchronized( this ) { wait(); } }
+                catch (InterruptedException ex) 
+                {
+                    Logger.getLogger(SpaceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 while ( true )
                 {
                     Task task = null;
@@ -268,7 +333,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space, Computer2Sp
             @Override
             public Return execute( Task task ) throws RemoteException 
             {
-                return worker.execute( task, shared() );
+                return worker.execute( task );
             }     
         }
     }

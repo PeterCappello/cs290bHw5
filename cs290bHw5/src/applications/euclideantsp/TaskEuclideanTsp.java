@@ -83,20 +83,20 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     {
         Stack<TaskEuclideanTsp> stack = new Stack<>();
         stack.push( this );
-        double minCost = Double.MAX_VALUE;
-        TaskEuclideanTsp minTour = this;
+        SharedMinDouble shared = ( SharedMinDouble ) shared();
+        TaskEuclideanTsp minTour = null;
         while (  ! stack.isEmpty() ) 
         {
             TaskEuclideanTsp currentTask = stack.pop();
             List<TaskEuclideanTsp> children = currentTask.children();
             for ( TaskEuclideanTsp child : children )
             { 
-                if ( child.cost <= minCost )
+                if ( child.cost <= shared.minCost() )
                 { 
                     if ( child.isComplete() )
                     { 
-                        minCost = child.cost;
                         minTour = child;
+                        shared( new SharedMinDouble( child.cost ) );
                     } 
                     else 
                     { 
@@ -138,7 +138,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append( getClass() );
-        stringBuilder.append( "\n\tPartial tour & its costs: " );
+        stringBuilder.append( " Partial tour: \n" );
         partialTour.stream().forEach(( city ) -> 
         {
             stringBuilder.append( city ).append( ": " );

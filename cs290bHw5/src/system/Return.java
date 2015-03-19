@@ -33,20 +33,11 @@ import java.io.Serializable;
  */
 abstract public class Return implements Serializable
 {
-    final private Shared shared;
-          private long taskRunTime;
+      private long taskRunTime;
     
-    /**
-     *
-     * @param shared
-     */
-    public Return( Shared shared ) { this.shared = shared; }
-
     public long taskRunTime() { return taskRunTime; }
     public void taskRunTime( long taskRunTime ) { this.taskRunTime = taskRunTime; }
-    
-    public Shared shared() { return shared; }
-    
+        
     /**
      *
      * @param task the task whose Result is to be processed.

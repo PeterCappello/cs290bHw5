@@ -96,7 +96,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
     public JLabel getLabel( final TaskEuclideanTsp tour )
     {
         List<Integer> cityList = tour.tour();
-        Logger.getLogger( ClientEuclideanTsp.class.getCanonicalName() ).log(Level.INFO, tourToString( cityList ) );
+        Logger.getLogger( ClientEuclideanTsp.class.getCanonicalName() ).log(Level.INFO, cityList.toString() );
 
         // display the graph graphically, as it were
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins

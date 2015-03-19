@@ -32,7 +32,9 @@ import java.rmi.RemoteException;
  */
 public interface Computer
 {        
-    public Return execute( Task task, Shared shared ) throws RemoteException;
+    public Return execute( Task task ) throws RemoteException;
     
     public void exit() throws RemoteException;
+    
+    void downShared( Shared shared ) throws RemoteException;
 }

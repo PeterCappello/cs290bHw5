@@ -40,16 +40,4 @@ abstract public class TaskRecursive<T> extends Task
     abstract public ReturnValue<T> solve();
     
     abstract public ReturnSubtasks decompose();
-    
-//    /**
-//     * Give SpaceProxy these tasks: This is NOT a remote method.
-//     * @param compose
-//     * @param tasks
-//     */
-//    protected void compute( TaskCompose compose, Task[] tasks )
-//    {
-//        compose.composeId( this.composeId() );
-//        System.out.println("TaskRecursive.compute: TaskId: " + id() + " composeId: " + this.composeId() + " tasks.length: " + tasks.length);
-//        try { space.compute( compose, tasks ); } catch ( RemoteException ignore ){}
-//    }
 }

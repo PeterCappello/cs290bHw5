@@ -24,6 +24,7 @@
 package system;
 
 import api.Computer;
+import api.Shared;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -35,4 +36,6 @@ import java.util.List;
 public interface Computer2Space extends Remote //Space
 {
     void register( Computer computer, List<Worker> workerList ) throws RemoteException;
+    
+    void upShared( Shared shared ) throws RemoteException;
 }

@@ -28,6 +28,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static system.Configuration.MULTI_COMPUTERS;
@@ -39,12 +42,15 @@ import static system.Configuration.MULTI_COMPUTERS;
 public class ComputerImpl extends UnicastRemoteObject implements Computer
 {
     static final private int FACTOR = 2;
+           final private SpaceProxy spaceProxy;
            final private List<Worker> workerList = new ArrayList<>();
-                 private int numTasks = 0;
+           final private AtomicInteger numTasks = new AtomicInteger();
+           final private Boolean sharedLock = true;
+                 private Shared shared;
            
-
-    public ComputerImpl() throws RemoteException
+    public ComputerImpl( Computer2Space space ) throws RemoteException
     {
+        spaceProxy = new SpaceProxy( space );
         final int numWorkers = MULTI_COMPUTERS ? FACTOR * Runtime.getRuntime().availableProcessors() : 1;
         for ( int workerNum = 0; workerNum < numWorkers; workerNum++ )
         {
@@ -55,15 +61,24 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
     /**
      * Execute a Task.
      * @param task to be executed.
-     * @param shared
+     * @param that
      * @return the return value of the Task call method.
      * @throws RemoteException
      */
     @Override
-    public Return execute( Task task, Shared shared ) throws RemoteException 
+    public Return execute( Task task ) throws RemoteException 
     { 
-        numTasks++;
+        numTasks.getAndIncrement();
         final long startTime = System.nanoTime();
+//        if ( shared == null )
+//        {
+//            shared = that;
+//        }
+//        else
+//        {
+//            shared.shared( that );
+//        }
+        task.computer( this );
         final Return returnValue = task.call();
         final long runTime = ( System.nanoTime() - startTime ) / 1000000; // milliseconds
         returnValue.taskRunTime( runTime );
@@ -79,7 +94,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         final String domainName = "localhost";
         final String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
         final Computer2Space space = (Computer2Space) Naming.lookup( url );
-        ComputerImpl computer = new ComputerImpl();
+        ComputerImpl computer = new ComputerImpl( space );
         space.register( computer, computer.workerList() );
         Logger.getLogger( ComputerImpl.class.getCanonicalName() ).log( Level.WARNING, "Computer running." );
     }
@@ -94,21 +109,66 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         System.out.println("Computer # tasks complete:" + numTasks ); /*System.exit( 0 ); */ 
     }
     
+    public Boolean sharedLock() { return sharedLock; }
+    
+    public Shared shared() { synchronized ( sharedLock ) { return shared; } }
+    
+    public void shared( Shared that )
+    {
+        if ( shared.shared( that ) )
+        {
+            spaceProxy.upShared();
+        }
+    }
+    
     public List<Worker> workerList() { return workerList; }
+
+    @Override
+    public void downShared( Shared that ) 
+    { 
+        if ( shared == null )
+        {
+            shared = that;
+        }
+        else
+        {
+            shared.shared( that ); 
+        }
+    }
     
     private class WorkerImpl implements Worker
     {
-        WorkerImpl() {}
-
         @Override
-        public Return execute( Task task, Shared shared ) throws RemoteException 
+        public Return execute( Task task ) throws RemoteException 
         {
-            numTasks++;
+            numTasks.getAndIncrement();
             final long startTime = System.nanoTime();
+            task.computer( ComputerImpl.this );
             final Return returnValue = task.call();
             final long runTime = ( System.nanoTime() - startTime ) / 1000000; // milliseconds
             returnValue.taskRunTime( runTime );
             return returnValue;
         }
+    }
+    
+    private class SpaceProxy extends Thread
+    {
+        final private Computer2Space space;
+        final private BlockingQueue<Boolean> upSharedQ = new LinkedBlockingQueue<>(); 
+        
+        SpaceProxy( Computer2Space space ) { this.space = space; }
+        
+        @Override
+        public void run()
+        {
+            upSharedQ.remove();
+            try { space.upShared( shared.duplicate() ); } 
+            catch ( RemoteException ex ) 
+            {
+                Logger.getLogger( ComputerImpl.class.getName() ).log( Level.SEVERE, null, ex );
+            }
+        }
+        
+        synchronized private void upShared() { upSharedQ.add( true ); }
     }
 }

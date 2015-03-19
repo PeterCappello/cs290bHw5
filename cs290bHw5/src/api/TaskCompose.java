@@ -17,8 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class TaskCompose<I> extends Task
 {
-//    static final private AtomicInteger ZERO = new AtomicInteger();
-//    private int numUnsetArgs;
     private AtomicInteger numUnsetArgs;
     private List<I> args;
     
@@ -29,7 +27,7 @@ public abstract class TaskCompose<I> extends Task
     
     public void arg( final int argNum, final I argValue ) 
     { 
-        assert numUnsetArgs.get() > 0 && ! isReady() && argValue != null && args.get( argNum ) == null; 
+        assert numUnsetArgs.get() > 0 && ! isReady() && args.get( argNum ) == null; 
         args.set( argNum, argValue );
         numUnsetArgs.getAndDecrement();
         assert args.get( argNum ) == argValue;

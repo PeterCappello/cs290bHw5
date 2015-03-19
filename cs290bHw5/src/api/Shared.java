@@ -23,30 +23,46 @@
  */
 package api;
 
+import java.io.Serializable;
+
 /**
- *
+ * This mutable class and its extensions must synchronize all methods.
  * @author Peter Cappello
  * @param <T> the shared object's type.
  */
-abstract public class Shared<T>
-{
-    final private T shared;
+abstract public class Shared<T extends Shared> implements Serializable
+{        
+    private T shared;
     
-    public Shared( final T shared ) { this.shared = shared; }
-    
-    public T shared() { return shared; }
+    synchronized public T shared() { return shared; }
     
     /**
-     *
-     * @param shared
-     * @return true if and only if shared is null or newer than this.shared.
+     * Is this shared object older that that shared object?
+     * Implementation must synchronize on this.
+     * @param that should not be null.
+     * @return true if and only if this is older than that.
      */
-    abstract public boolean isNewer( final T shared );
+    abstract public boolean isOlderThan( final T that );
+    
+    synchronized public boolean shared( final T that )
+    {
+        if ( this.isOlderThan( that ) )
+        {
+            copy( that );
+            return true;
+        }
+        return false;
+    }
     
     /**
-     *
-     * @param shared
-     * @return
+     * Give this shared the state of that shared.
+     * @param that
      */
-//    public T shared( T shared ) { return isNewer( shared ) ? shared : this.shared; }
+    abstract public void copy( final T that );
+    
+    /**
+     * Duplicate this Shared object.
+     * @return the duplicate.
+     */
+    abstract public Shared duplicate();
 }
