@@ -38,6 +38,7 @@ import applications.euclideantsp.TaskEuclideanTsp;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static util.EuclideanGraph.generateRandomGraph;
 
 /**
  *
@@ -47,21 +48,21 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 {
     // configure application
     static private final int NUM_PIXALS = 600;
-    static public  final double[][] CITIES =
-    {
-	{ 1, 1 },
-	{ 8, 1 },
-	{ 8, 8 },
-	{ 1, 8 },
-	{ 2, 2 },
-	{ 7, 2 },
-	{ 7, 7 },
-	{ 2, 7 },
-	{ 3, 3 },
-	{ 6, 3 },
-	{ 6, 6 },
-	{ 3, 6 }
-    };
+    static public  final double[][] CITIES = generateRandomGraph( 15, 9 );
+//    {
+//	{ 1, 1 },
+//	{ 8, 1 },
+//	{ 8, 8 },
+//	{ 1, 8 },
+//	{ 2, 2 },
+//	{ 7, 2 },
+//	{ 7, 7 },
+//	{ 2, 7 },
+//	{ 3, 3 },
+//	{ 6, 3 },
+//	{ 6, 6 },
+//	{ 3, 6 }
+//    };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
     static private final int NUM_COMPUTERS = 2;
     static private List<Integer> unvisitedCities()
@@ -81,6 +82,8 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
     }
     static private final Task TASK = new TaskEuclideanTsp( partialTour(), unvisitedCities() );
     static private final Shared SHARED = new SharedMinDouble( Double.MAX_VALUE );
+//    static private final double greedyUpperBound = TaskEuclideanTsp.tourDistance( CITIES, EuclideanGraph.greedyTour( CITIES ) );
+//    static private final Shared SHARED = new SharedMinDouble( greedyUpperBound );
     
     public ClientEuclideanTsp() throws RemoteException
     { 
@@ -161,15 +164,5 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
         }
         final ImageIcon imageIcon = new ImageIcon( image );
         return new JLabel( imageIcon );
-    }
-    
-    private String tourToString( List<Integer> cityList )
-    {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append( "Tour: " );
-        cityList.stream().forEach((city) -> {
-            stringBuilder.append( city ).append( ' ' );
-        });
-        return stringBuilder.toString();
     }
 }

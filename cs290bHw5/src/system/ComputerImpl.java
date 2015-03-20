@@ -51,6 +51,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
     public ComputerImpl( Computer2Space space ) throws RemoteException
     {
         spaceProxy = new SpaceProxy( space );
+        spaceProxy.start();
         final int numWorkers = MULTI_COMPUTERS ? FACTOR * Runtime.getRuntime().availableProcessors() : 1;
         for ( int workerNum = 0; workerNum < numWorkers; workerNum++ )
         {
@@ -61,7 +62,6 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
     /**
      * Execute a Task.
      * @param task to be executed.
-     * @param that
      * @return the return value of the Task call method.
      * @throws RemoteException
      */
@@ -70,14 +70,6 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
     { 
         numTasks.getAndIncrement();
         final long startTime = System.nanoTime();
-//        if ( shared == null )
-//        {
-//            shared = that;
-//        }
-//        else
-//        {
-//            shared.shared( that );
-//        }
         task.computer( this );
         final Return returnValue = task.call();
         final long runTime = ( System.nanoTime() - startTime ) / 1000000; // milliseconds
@@ -108,12 +100,10 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
     { 
         System.out.println("Computer # tasks complete:" + numTasks ); /*System.exit( 0 ); */ 
     }
-    
-    public Boolean sharedLock() { return sharedLock; }
-    
+        
     public Shared shared() { synchronized ( sharedLock ) { return shared; } }
     
-    public void shared( Shared that )
+    public void upShared( Shared that )
     {
         if ( shared.shared( that ) )
         {
@@ -141,13 +131,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         @Override
         public Return execute( Task task ) throws RemoteException 
         {
-            numTasks.getAndIncrement();
-            final long startTime = System.nanoTime();
-            task.computer( ComputerImpl.this );
-            final Return returnValue = task.call();
-            final long runTime = ( System.nanoTime() - startTime ) / 1000000; // milliseconds
-            returnValue.taskRunTime( runTime );
-            return returnValue;
+            return ComputerImpl.this.execute( task );
         }
     }
     
@@ -161,7 +145,11 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         @Override
         public void run()
         {
-            upSharedQ.remove();
+            try { upSharedQ.take(); } 
+            catch (InterruptedException ex) 
+            {
+                Logger.getLogger(ComputerImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
             try { space.upShared( shared.duplicate() ); } 
             catch ( RemoteException ex ) 
             {
@@ -169,6 +157,6 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
             }
         }
         
-        synchronized private void upShared() { upSharedQ.add( true ); }
+        synchronized private void upShared() { upSharedQ.add( Boolean.TRUE ); }
     }
 }

@@ -31,6 +31,8 @@ import clients.ClientEuclideanTsp;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import static util.EuclideanGraph.distance;
+import static util.EuclideanGraph.tourDistance;
 
 /**
  * Find a tour of minimum minCost among those that start with city 0, 
@@ -151,23 +153,6 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         } );
         return stringBuilder.toString();
     }
-    
-    public static double tourDistance( final double[][] cities, final List<Integer> tour )
-    {
-        double cost = 0.0;
-        for ( int city = 0; city < tour.size() - 1; city ++ )
-        {
-            cost += distance( cities[ tour.get( city ) ], cities[ tour.get( city + 1 ) ] );
-        }
-        return cost + distance( cities[ tour.get( tour.size() - 1 ) ], cities[ 0 ] );
-    }
-   
-   private static double distance( final double[] city1, final double[] city2 )
-   {
-       final double deltaX = city1[ 0 ] - city2[ 0 ];
-       final double deltaY = city1[ 1 ] - city2[ 1 ];
-       return Math.sqrt( deltaX * deltaX + deltaY * deltaY );
-   }
    
    private boolean isComplete() { return unvisitedCities.isEmpty(); }
 }
