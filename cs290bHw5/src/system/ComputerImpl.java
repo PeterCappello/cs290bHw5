@@ -45,18 +45,20 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
            final private SpaceProxy spaceProxy;
            final private List<Worker> workerList = new ArrayList<>();
            final private AtomicInteger numTasks = new AtomicInteger();
+           //!! delete sharedLock & test to ensure its OK.
            final private Boolean sharedLock = true;
                  private Shared shared;
            
     public ComputerImpl( Computer2Space space ) throws RemoteException
     {
-        spaceProxy = new SpaceProxy( space );
-        spaceProxy.start();
         final int numWorkers = MULTI_COMPUTERS ? FACTOR * Runtime.getRuntime().availableProcessors() : 1;
         for ( int workerNum = 0; workerNum < numWorkers; workerNum++ )
         {
             workerList.add( new WorkerImpl() );
         }
+        Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Workers: {0}", numWorkers );
+        spaceProxy = new SpaceProxy( space );
+        spaceProxy.start();
     }
          
     /**
@@ -72,8 +74,10 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         final long startTime = System.nanoTime();
         task.computer( this );
         final Return returnValue = task.call();
-        final long runTime = ( System.nanoTime() - startTime ) / 1000000; // milliseconds
+        final long runTime = ( System.nanoTime() - startTime ); // milliseconds
         returnValue.taskRunTime( runTime );
+//        System.out.println("ComputerImpl.exeute: Task id: " + task.id() + " elapsed time: " + runTime);
+       
         return returnValue;
     }
     
@@ -87,7 +91,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer
         final String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
         final Computer2Space space = (Computer2Space) Naming.lookup( url );
         ComputerImpl computer = new ComputerImpl( space );
-        space.register( computer, computer.workerList() );
+        space.registerExternalComputer( computer, computer.workerList() );
         Logger.getLogger( ComputerImpl.class.getCanonicalName() ).log( Level.WARNING, "Computer running." );
     }
 

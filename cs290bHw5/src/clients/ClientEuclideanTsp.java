@@ -48,7 +48,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 {
     // configure application
     static private final int NUM_PIXALS = 600;
-    static public  final double[][] CITIES = generateRandomGraph( 15, 9 );
+    static public  final double[][] CITIES = generateRandomGraph( 13, 9 );
 //    {
 //	{ 1, 1 },
 //	{ 8, 1 },

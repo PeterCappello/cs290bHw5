@@ -19,6 +19,9 @@ public abstract class TaskCompose<I> extends Task
 {
     private AtomicInteger numUnsetArgs;
     private List<I> args;
+    private long decomposeTaskRunTime;
+    private long sumChildT1;
+    private long maxChildTinf;
     
     @Override
     abstract public ReturnValue call();
@@ -47,4 +50,13 @@ public abstract class TaskCompose<I> extends Task
     }
     
     public boolean isReady() { return numUnsetArgs.get() == 0; }
+    
+    public void decomposeTaskRunTime( long time ) { decomposeTaskRunTime = time; }
+    public long decomposeTaskRunTime() { return decomposeTaskRunTime; }
+    
+    public long sumChildT1() { return sumChildT1; }
+    public void sumChildT1( long time ) { sumChildT1 +=  time; }
+    
+    public long maxChildTInf() { return maxChildTinf; }
+    public void maxChildTInf( long time ) { maxChildTinf = maxChildTinf < time ? time : maxChildTinf; }
 }

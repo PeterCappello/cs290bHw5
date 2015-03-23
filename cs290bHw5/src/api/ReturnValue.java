@@ -23,7 +23,6 @@
  */
 package api;
 
-import system.Configuration;
 import system.Return;
 import system.SpaceImpl;
 
@@ -50,30 +49,52 @@ public class ReturnValue<T> extends Return
    
     /**
      *
-     * @param parentTask unused - the task whose Result is to be processed.
+     * @param associatedTask unused - the task whose Result is to be processed.
      * @param space
      */
     @Override
-    public void process( Task parentTask, SpaceImpl space )
+    public void process( Task associatedTask, SpaceImpl space )
     {
+        if ( associatedTask instanceof TaskCompose )
+        {
+            TaskCompose task = (TaskCompose) associatedTask;
+            long commonTime = task.decomposeTaskRunTime() + taskRunTime();
+            t1(   commonTime + task.sumChildT1() );
+            tInf( commonTime + task.maxChildTInf() );
+            System.out.println(" COMPOSE Task id: " + associatedTask.id() + " runtime: " + taskRunTime()
+                + " t1: " + t1() + " : T.decompose: " + task.decomposeTaskRunTime()
+                + " sum Tinf{children}: " + task.sumChildT1()
+                + " T.compose: " + taskRunTime()
+                + " ... tInf: " + tInf() + " : T.decompose: " + task.decomposeTaskRunTime()
+                + " max Tinf{children}: " + task.maxChildTInf()
+                + " T.compose: " + taskRunTime()
+            );
+        }
+        else
+        {
+            t1(   taskRunTime() );
+            tInf( taskRunTime() );
+            // !!  Modify below for this case
+            System.out.println(" ATOMIC Task id: " + associatedTask.id() + " runtime: " + taskRunTime()
+                + " t1: " + taskRunTime()
+                + " tInf: " + taskRunTime()
+            );
+        }
+        
         if ( composeId == SpaceImpl.FINAL_RETURN_VALUE )
         {
+            space.tInf( tInf() );
             space.putResult( this );
             return;
         }
         TaskCompose compose = space.getCompose( composeId );
         assert compose != null && ! compose.isReady();
         compose.arg( composeArgNum, value );
+        compose.sumChildT1( t1() );
+        compose.maxChildTInf( tInf() );
         if ( compose.isReady() )
         {
-            if ( Configuration.SPACE_CALLABLE )
-            {
-                space.processResult( compose, compose.call() ); // assumes TaskCompose is SPACE_CALLABLE.
-            }
-            else
-            {
-                space.putReadyTask( compose );
-            }
+            space.putReadyTask( compose );
             space.removeWaitingTask( composeId );
         }
     }

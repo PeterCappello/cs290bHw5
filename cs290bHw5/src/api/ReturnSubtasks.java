@@ -23,6 +23,7 @@
  */
 package api;
 
+import java.util.ArrayList;
 import java.util.List;
 import system.Return;
 import system.SpaceImpl;
@@ -31,6 +32,7 @@ public class ReturnSubtasks extends Return
 {    
     final private TaskCompose compose;
     final private List<Task> tasks;
+    final private List<Long> tasksTInf = new ArrayList();
     
     public ReturnSubtasks( TaskCompose compose, List<Task> tasks )
     {
@@ -50,12 +52,14 @@ public class ReturnSubtasks extends Return
     @Override
     public void process( Task parentTask, SpaceImpl space ) 
     {
+        System.out.println(" DECOMPOSE Task id: " + parentTask.id() + " elapsed time: " + taskRunTime() );
         final int composeId = space.makeTaskId();
         compose.id( composeId );
         compose.composeId( parentTask.composeId() );
         compose.composeArgNum( parentTask.composeArgNum() );
         compose.numArgs( tasks.size() );
         space.putCompose( compose );
+        compose.decomposeTaskRunTime( taskRunTime() );
         for ( int i = 0; i < tasks.size(); i++  )
         {
             Task task = tasks.get( i );

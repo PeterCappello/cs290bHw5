@@ -35,7 +35,7 @@ import java.util.List;
  */
 public interface Computer2Space extends Remote //Space
 {
-    void register( Computer computer, List<Worker> workerList ) throws RemoteException;
+    void registerExternalComputer( Computer computer, List<Worker> workerList ) throws RemoteException;
     
     void upShared( Shared shared ) throws RemoteException;
 }

@@ -84,7 +84,7 @@ abstract public class Client<T> extends JFrame
         for ( int i = 0; i < numComputers; i++ )
         {
             ComputerImpl computer = new ComputerImpl( space );
-            space.register( computer, computer.workerList() );
+            space.registerExternalComputer( computer, computer.workerList() );
         }
         return space;
     }

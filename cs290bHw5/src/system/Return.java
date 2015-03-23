@@ -23,20 +23,27 @@
  */
 package system;
 
-import api.Shared;
 import api.Task;
 import java.io.Serializable;
 
 /**
- *
+ * Time measures:
+ * T1 = atomic task ? Telapsed : Telapsed.decompose + sum{ T1.child } + T1.compose
+ * Tinf = atomic task ? Telapsed : Telapsed.decompose + max{ Tinf.child } + Tinf.compose
  * @author Peter Cappello
  */
 abstract public class Return implements Serializable
 {
-      private long taskRunTime;
+    private long taskRunTime;   // elapsed time
+    private long t1;            // work
+    private long tInf;          // critical path length
     
     public long taskRunTime() { return taskRunTime; }
     public void taskRunTime( long taskRunTime ) { this.taskRunTime = taskRunTime; }
+    public long t1() { return t1; }
+    public void t1( long t1 ) { this.t1 = t1; }
+    public long tInf() { return tInf; }
+    public void tInf( long tInf ) { this.tInf = tInf; }
         
     /**
      *
