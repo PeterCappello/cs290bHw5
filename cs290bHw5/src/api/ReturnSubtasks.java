@@ -52,7 +52,6 @@ public class ReturnSubtasks extends Return
     @Override
     public void process( Task parentTask, SpaceImpl space ) 
     {
-        System.out.println(" DECOMPOSE Task id: " + parentTask.id() + " elapsed time: " + taskRunTime() );
         final int composeId = space.makeTaskId();
         compose.id( composeId );
         compose.composeId( parentTask.composeId() );

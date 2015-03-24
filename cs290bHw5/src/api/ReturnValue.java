@@ -61,24 +61,11 @@ public class ReturnValue<T> extends Return
             long commonTime = task.decomposeTaskRunTime() + taskRunTime();
             t1(   commonTime + task.sumChildT1() );
             tInf( commonTime + task.maxChildTInf() );
-            System.out.println(" COMPOSE Task id: " + associatedTask.id() + " runtime: " + taskRunTime()
-                + " t1: " + t1() + " : T.decompose: " + task.decomposeTaskRunTime()
-                + " sum Tinf{children}: " + task.sumChildT1()
-                + " T.compose: " + taskRunTime()
-                + " ... tInf: " + tInf() + " : T.decompose: " + task.decomposeTaskRunTime()
-                + " max Tinf{children}: " + task.maxChildTInf()
-                + " T.compose: " + taskRunTime()
-            );
         }
         else
         {
             t1(   taskRunTime() );
             tInf( taskRunTime() );
-            // !!  Modify below for this case
-            System.out.println(" ATOMIC Task id: " + associatedTask.id() + " runtime: " + taskRunTime()
-                + " t1: " + taskRunTime()
-                + " tInf: " + taskRunTime()
-            );
         }
         
         if ( composeId == SpaceImpl.FINAL_RETURN_VALUE )
