@@ -57,6 +57,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
     final private BlockingQueue<Task>   readySpaceCallableTaskQ = new LinkedBlockingQueue<>();
     final private Map<Computer, ComputerProxy> computerProxies = Collections.synchronizedMap( new HashMap<>() );
     final private Map<Integer, TaskCompose>   waitingTaskMap   = Collections.synchronizedMap( new HashMap<>() );
+    final private AtomicInteger numTasks = new AtomicInteger();
           private Shared shared; // mutable but thread-safe: its state changes are synchronized on itself.
           private long t1   = 0;
           private long tInf = 0;
@@ -157,10 +158,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
     {
         final ComputerProxy computerProxy = new ComputerProxy( computer, workerList, readyTaskQ );
         register( computer, computerProxy );
-//        computerProxies.put( computer, computerProxy );
-//        computerProxy.start();
-//        computerProxy.startWorkerProxies();
-//        Logger.getLogger(SpaceImpl.class.getName()).log(Level.INFO, "Computer {0} started.", computerProxy.computerId);
     }
     
     public void registerInternalComputer( Computer computer, List<Worker> workerList ) throws RemoteException
@@ -186,6 +183,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
 
     synchronized public void processResult( Task parentTask, Return result )
     { 
+        numTasks.getAndIncrement();
         result.process( parentTask, this );
         t1 += result.taskRunTime();
     }
@@ -241,6 +239,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
     
     private void initTimeMeasures()
     {
+        numTasks.getAndSet( 0 );
         t1 = 0;
         tInf = 0;
     }
@@ -258,7 +257,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
     {
         System.out.println("reportTimeMeasures entered");
         Logger.getLogger( this.getClass().getCanonicalName() )
-                .log(Level.INFO, "\tT_1: {0}ms.\n\tT_inf: {1}ms.", new Object[]{result.t1() / 1000000, result.tInf() / 1000000});
+                .log(Level.INFO, "\n\tTotal tasks: {0} \n\tT_1: {1}ms.\n\tT_inf: {2}ms.", new Object[]{numTasks, result.t1() / 1000000, result.tInf() / 1000000});
     }
     
     private class ComputerProxy extends Thread implements Computer 
