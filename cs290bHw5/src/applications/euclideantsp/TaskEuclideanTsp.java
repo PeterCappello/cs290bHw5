@@ -30,7 +30,6 @@ import api.TaskRecursive;
 import clients.ClientEuclideanTsp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 import static util.EuclideanGraph.distance;
 
@@ -55,8 +54,8 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     {
         this.partialTour = partialTour;
         this.unvisitedCities = unvisitedCities;
-//        lowerBound = tourDistance( CITIES, partialTour );
         lowerBound = new LowerBoundNearestNeighbors();
+//        lowerBound = new LowerBoundPartialTour( partialTour );
     }
     
     TaskEuclideanTsp( TaskEuclideanTsp parentTask, Integer newCity )
@@ -66,10 +65,12 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
 //                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
 //                + distance( CITIES[ 0 ], CITIES[ newCity ] )
 //                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
-        lowerBound  = parentTask.lowerBound;
+        lowerBound  = parentTask.lowerBound.clone();
+        System.out.println("TaskEuclideanTsp: partialTour.size() - 1: " + (partialTour.size() - 1) + " newCity: " + newCity );
         lowerBound.update( partialTour.get( partialTour.size() - 1 ), newCity );
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities );     
         partialTour.add( newCity );
+        System.out.println("TaskEuclideanTsp: partialTour: " + partialTour + " lowerBound: " + lowerBound.lowerBound() );
         unvisitedCities.remove( newCity );
     }
     
@@ -78,8 +79,8 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     
     /**
      * Produce a tour of minimum cost from the set of tours, having as its
- elements each tour consisting of the sequence of cities in partialTour 
- followed by a permutation of the unvisitedCities.
+     * elements each tour consisting of the sequence of cities in partial tour 
+     * followed by a permutation of the unvisited cities.
      * @return a tour of minimum cost.
      */
      @Override
@@ -97,11 +98,12 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
             List<TaskEuclideanTsp> children = currentTask.children( shared.minCost() );
             for ( TaskEuclideanTsp child : children )
             { 
+                assert child.lowerBound() < shared.minCost(); // unnecessary and may be false.
                 if ( child.isComplete() )
                 { 
                     minTour = child;
 //                    shared(new SharedMinDouble( child.lowerBound ) );
-                    shared(new SharedMinDouble( child.lowerBound() ) );
+                    shared( new SharedMinDouble( child.lowerBound() ) );
                 } 
                 else 
                 { 
@@ -109,6 +111,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
                 } 
             }  
         } 
+        System.out.println("minTour: " + ( minTour == null ? " NULL" : minTour.partialTour));
         return new ReturnValue<>( this, minTour );
     }
 

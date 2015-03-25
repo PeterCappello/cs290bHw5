@@ -38,7 +38,9 @@ import applications.euclideantsp.TaskEuclideanTsp;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import util.EuclideanGraph;
 import static util.EuclideanGraph.generateRandomGraph;
+import static util.EuclideanGraph.tourDistance;
 
 /**
  *
@@ -48,7 +50,13 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 {
     // configure application
     static private final int NUM_PIXALS = 600;
-    static public  final double[][] CITIES = generateRandomGraph( 14, 9 );
+    static public  final double[][] CITIES = generateRandomGraph( 6, 9 );
+//    {
+//        { 0, 0 },
+//        { 0, 1 },
+//        { 0, 2 },
+//        { 0, 3 }
+//    };
 //    {
 //	{ 1, 1 },
 //	{ 8, 1 },
@@ -64,7 +72,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 //	{ 3, 6 }
 //    };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
-    static private final int NUM_COMPUTERS = 2;
+    static private final int NUM_COMPUTERS = 1;
     static private List<Integer> unvisitedCities()
     {
         final List<Integer> unvisitedCities = new ArrayList<>();
@@ -82,7 +90,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
     }
     static private final Task TASK = new TaskEuclideanTsp( partialTour(), unvisitedCities() );
     static private final Shared SHARED = new SharedMinDouble( Double.MAX_VALUE );
-//    static private final double greedyUpperBound = TaskEuclideanTsp.tourDistance( CITIES, EuclideanGraph.greedyTour( CITIES ) );
+//    static private final double greedyUpperBound = tourDistance( CITIES, EuclideanGraph.greedyTour( CITIES ) );
 //    static private final Shared SHARED = new SharedMinDouble( greedyUpperBound );
     
     public ClientEuclideanTsp() throws RemoteException
@@ -92,6 +100,8 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
     
     public static void main( String[] args ) throws Exception
     {
+//        System.out.println("Greedy tour: " + EuclideanGraph.greedyTour( CITIES ));
+//        System.out.println("GreedyUpperBound: " + greedyUpperBound );
         Client.runClient( client(), NUM_COMPUTERS, TASK, SHARED );
     }
     

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 Peter Cappello.
+ * Copyright 2015 petercappello.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +23,41 @@
  */
 package applications.euclideantsp;
 
+import clients.ClientEuclideanTsp;
+import java.util.ArrayList;
+import java.util.List;
+import static util.EuclideanGraph.tourDistance;
+
 /**
  *
- * @author Peter Cappello
+ * @author petercappello
  */
-public interface LowerBound 
+final public class LowerBoundPartialTour implements LowerBound
 {
-    /**
-     *
-     * @return
-     */
-    double initializeLowerBound();
+    static final private double[][] CITIES = ClientEuclideanTsp.CITIES;
     
-    double lowerBound();
+           final private List<Integer> partialTour;
+                 private double lowerBound;
     
-    void update( Integer city, Integer newCity );
+    public LowerBoundPartialTour( final List<Integer> partialTour )
+    {
+        this.partialTour = new ArrayList( partialTour );
+        lowerBound = initializeLowerBound();
+    }
     
-    LowerBound clone();
+    @Override
+    public double initializeLowerBound() { return tourDistance( CITIES, partialTour ); }
+
+    @Override
+    public double lowerBound() { return lowerBound; }
+
+    @Override
+    public void update( final Integer city, final Integer newCity ) 
+    {
+        partialTour.add( newCity );
+        lowerBound = initializeLowerBound();
+    }
+
+    @Override
+    public LowerBound clone() { return new LowerBoundPartialTour( partialTour ); }
 }

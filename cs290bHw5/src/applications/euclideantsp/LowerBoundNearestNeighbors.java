@@ -36,11 +36,17 @@ import static util.EuclideanGraph.distance;
  */
 final public class LowerBoundNearestNeighbors implements LowerBound 
 {
-    static final private Integer EMPTY = -1;
+    static final private Integer    EMPTY = -1;
     static final private double[][] CITIES = ClientEuclideanTsp.CITIES;
+//    {
+//        { 0, 0 },
+//        { 0, 1 },
+//        { 0, 2 },
+//        { 0, 3 }
+//    };
     
            final private List<Deque<Integer>> nearestNeighbors;
-                 private  double lowerBound;
+                 private double lowerBound;
     
     public LowerBoundNearestNeighbors()
     {
@@ -48,14 +54,34 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         lowerBound = initializeLowerBound();
     }
     
+    public LowerBoundNearestNeighbors( final List<Deque<Integer>> nearestNeighbors, final double lowerBound ) 
+    {
+        List<Deque<Integer>> copyNearestNeighbors = new ArrayList<>();
+        for ( int city = 0; city < nearestNeighbors.size(); city++ )
+        {
+//            Deque<Integer> deque = new ArrayDeque<>( nearestNeighbors.get( city ) );
+            Deque<Integer> deque = new ArrayDeque<>();
+            Integer[] array = nearestNeighbors.get( city ).toArray(new Integer[0]);
+            for ( int neighbor = 0; neighbor < array.length; neighbor++ )
+            {
+                deque.add( array[ neighbor ] ); 
+            }
+            copyNearestNeighbors.add( deque );
+        }
+        this.nearestNeighbors = copyNearestNeighbors;
+        this.lowerBound = lowerBound;
+        assert this.lowerBound == initializeLowerBound() : this.lowerBound + " " +  initializeLowerBound();
+    }
+    
     @Override
     public double initializeLowerBound()
     {
         double bound = 0.0;
-        for ( Deque<Integer> neighbors : nearestNeighbors )
+        for ( int city = 0; city < CITIES.length; city++ )
         {
-            bound += neighbors.peekFirst();
-            bound += neighbors.peekLast();
+            final Deque<Integer> deque = nearestNeighbors.get( city );
+            bound += distance( CITIES[ city ], CITIES[ deque.peekFirst() ] );
+            bound += distance( CITIES[ city ], CITIES[ deque.peekLast()  ] );
         }
         return bound / 2.0;
     }
@@ -68,25 +94,27 @@ final public class LowerBoundNearestNeighbors implements LowerBound
             Deque<Integer> cityNearestNeighbors = new ArrayDeque<>();
             cityNearestNeighbors.add( EMPTY );
             cityNearestNeighbors.add( EMPTY );
-            for ( int neighbor = 0; neighbor < CITIES.length; city++ )
+            for ( int neighbor = 0; neighbor < CITIES.length; neighbor++ )
             {
                 if ( neighbor != city )
                 {
-                    if ( distance( CITIES[ city ], CITIES[ neighbor ] ) < cityNearestNeighbors.peekFirst() )
+                    if ( cityNearestNeighbors.peekFirst().equals( EMPTY ) || distance( CITIES[ city ], CITIES[ neighbor ] ) < distance( CITIES[ city ], CITIES[ cityNearestNeighbors.peekFirst() ] ) )
                     {
                         cityNearestNeighbors.removeLast();
                         cityNearestNeighbors.addFirst( neighbor );
                     }
-                    else if ( distance( CITIES[ city ], CITIES[ neighbor ] ) < cityNearestNeighbors.peekLast() )
+                    else if ( cityNearestNeighbors.peekLast().equals( EMPTY ) || distance( CITIES[ city ], CITIES[ neighbor ] ) < distance( CITIES[ city ], CITIES[ cityNearestNeighbors.peekLast() ] ) )
                     {
                         cityNearestNeighbors.removeLast();
                         cityNearestNeighbors.addLast( neighbor );
                     }
                 }
             }
-            assert ! cityNearestNeighbors.peekFirst().equals( EMPTY )
-                && ! cityNearestNeighbors.peekLast().equals(  EMPTY )
-                && cityNearestNeighbors.peekFirst() < cityNearestNeighbors.peekLast();
+            System.out.println("city: " + city + " deque: " + cityNearestNeighbors );
+            assert ! cityNearestNeighbors.peekFirst().equals( EMPTY );
+            assert ! cityNearestNeighbors.peekLast().equals(  EMPTY );
+            assert distance( CITIES[ city ], CITIES[ cityNearestNeighbors.peekFirst() ] ) <= distance( CITIES[ city ], CITIES[ cityNearestNeighbors.peekLast() ] );
+            neighbors.add( cityNearestNeighbors );
         }
         return neighbors;
     }
@@ -97,15 +125,49 @@ final public class LowerBoundNearestNeighbors implements LowerBound
     @Override
     public void update( final Integer city1, final Integer city2 ) 
     {
+//        System.out.println("update: city1: " + city1 + " city2: " + city2 );
         updateEndpoint( city1, city2 );
         updateEndpoint( city2, city1 );
     }
     
     public void updateEndpoint( final Integer city, final Integer newEndpoint)
     {
-        Integer oldEndpoint = nearestNeighbors.get( city ).removeFirst();
-        lowerBound += (  distance( CITIES[ city ], CITIES[ newEndpoint ] )
-                       - distance( CITIES[ city ], CITIES[ oldEndpoint ] ) 
-                      ) / 2.0;
+        System.out.println("updateEndpoint: city: " + city + " newEndpoint: " + newEndpoint + "\tBEFORE: deque.size(): " + nearestNeighbors.get( city ) );
+        if ( newEndpoint.equals( nearestNeighbors.get( city ).peekFirst() ) )
+        {
+            System.out.println("\t\t\t\t\tAFTER: deque.size(): " + nearestNeighbors.get( city ) + " == FIRST: " + city + " == " + newEndpoint + " " + nearestNeighbors.get( city ).peekFirst() );
+            nearestNeighbors.get( city ).removeFirst();
+        }
+        else if ( newEndpoint.equals( nearestNeighbors.get( city ).peekLast() ) )
+        {
+            System.out.println("\t\t\t\t\tAFTER: deque.size(): " + nearestNeighbors.get( city ) + " == LAST: " + city + " == " + newEndpoint + " " + nearestNeighbors.get( city ).peekLast() );
+            nearestNeighbors.get( city ).removeLast();
+        }
+        else // it is a endpoint different from this city's 2 nearest neighbors
+        {
+            Integer oldEndpoint = nearestNeighbors.get( city ).removeLast();
+            double deltaDistance = distance( CITIES[ city ], CITIES[ newEndpoint ] ) - distance( CITIES[ city ], CITIES[ oldEndpoint ] );
+            lowerBound += deltaDistance / 2.0;
+            System.out.println("\t\t\t\t\tAFTER: deque.size(): " + nearestNeighbors.get( city ) + " oldEndpoint: " + oldEndpoint + " increment: " + deltaDistance );
+            assert deltaDistance >= 0.0;
+        }
+    }
+    
+    public static void main( String[] args ) throws Exception
+    {
+        LowerBoundNearestNeighbors lowerBoundNearestNeighbors = new LowerBoundNearestNeighbors();
+        lowerBoundNearestNeighbors.initializeLowerBound();
+        for ( int city = 0; city < lowerBoundNearestNeighbors.nearestNeighbors.size(); city++ )
+        {
+            Deque<Integer> deque = lowerBoundNearestNeighbors.nearestNeighbors.get( city );
+            System.out.println("City " + city + ": " + deque.peekFirst() + " " + deque.peekLast() );
+        }
+        System.out.println("Lower bound: " + lowerBoundNearestNeighbors.lowerBound + " expecting 5.");
+    }
+
+    @Override
+    public LowerBound clone() 
+    {
+        return new LowerBoundNearestNeighbors( nearestNeighbors, lowerBound );
     }
 }

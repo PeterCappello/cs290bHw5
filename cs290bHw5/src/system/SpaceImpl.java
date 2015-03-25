@@ -255,7 +255,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
     
     private void reportTimeMeasures( Return result )
     {
-        System.out.println("reportTimeMeasures entered");
         Logger.getLogger( this.getClass().getCanonicalName() )
                 .log(Level.INFO, "\n\tTotal tasks: {0} \n\tT_1: {1}ms.\n\tT_inf: {2}ms.", new Object[]{numTasks, result.t1() / 1000000, result.tInf() / 1000000});
     }
