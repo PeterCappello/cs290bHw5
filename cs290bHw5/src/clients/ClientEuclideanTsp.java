@@ -171,6 +171,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
             graphics.fillOval( x - VERTEX_DIAMETER/2,
                                y - VERTEX_DIAMETER/2,
                               VERTEX_DIAMETER, VERTEX_DIAMETER);
+            graphics.drawString(" " + i, x + 3, y + 3);
         }
         final ImageIcon imageIcon = new ImageIcon( image );
         return new JLabel( imageIcon );

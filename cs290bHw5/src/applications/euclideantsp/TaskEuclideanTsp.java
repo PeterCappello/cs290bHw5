@@ -54,8 +54,8 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     {
         this.partialTour = partialTour;
         this.unvisitedCities = unvisitedCities;
-        lowerBound = new LowerBoundNearestNeighbors();
-//        lowerBound = new LowerBoundPartialTour( partialTour );
+//        lowerBound = new LowerBoundNearestNeighbors();
+        lowerBound = new LowerBoundPartialTour( partialTour );
     }
     
     TaskEuclideanTsp( TaskEuclideanTsp parentTask, Integer newCity )
@@ -65,12 +65,14 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
 //                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
 //                + distance( CITIES[ 0 ], CITIES[ newCity ] )
 //                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
-        lowerBound  = parentTask.lowerBound.clone();
-        System.out.println("TaskEuclideanTsp: partialTour.size() - 1: " + (partialTour.size() - 1) + " newCity: " + newCity );
-        lowerBound.update( partialTour.get( partialTour.size() - 1 ), newCity );
+        
+//        lowerBound  = parentTask.lowerBound.clone();
+//        lowerBound.update( partialTour.get( partialTour.size() - 1 ), newCity );
+        lowerBound = parentTask.lowerBound.make( parentTask, newCity );
+        
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities );     
         partialTour.add( newCity );
-        System.out.println("TaskEuclideanTsp: partialTour: " + partialTour + " lowerBound: " + lowerBound.lowerBound() );
+//        System.out.println("TaskEuclideanTsp: partialTour: " + partialTour + " lowerBound: " + lowerBound.lowerBound() );
         unvisitedCities.remove( newCity );
     }
     
@@ -102,6 +104,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
                 if ( child.isComplete() )
                 { 
                     minTour = child;
+                    System.out.println("New minTour: " + minTour.lowerBound() + " " + minTour.partialTour);
 //                    shared(new SharedMinDouble( child.lowerBound ) );
                     shared( new SharedMinDouble( child.lowerBound() ) );
                 } 

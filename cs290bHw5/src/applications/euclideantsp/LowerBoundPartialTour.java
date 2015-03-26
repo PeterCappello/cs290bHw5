@@ -55,7 +55,11 @@ final public class LowerBoundPartialTour implements LowerBound
     public void update( final Integer city, final Integer newCity ) 
     {
         partialTour.add( newCity );
-        lowerBound = initializeLowerBound();
+//        lowerBound = initializeLowerBound();
+        lowerBound = parentTask.lowerBound // compute cost in O(1) time using parentTask.cost
+                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
+                + distance( CITIES[ 0 ], CITIES[ newCity ] )
+                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
     }
 
     @Override

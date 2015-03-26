@@ -37,6 +37,8 @@ public interface LowerBound
     
     double lowerBound();
     
+    LowerBound make( TaskEuclideanTsp parentTask, Integer newCity );
+    
     void update( Integer city, Integer newCity );
     
     LowerBound clone();
