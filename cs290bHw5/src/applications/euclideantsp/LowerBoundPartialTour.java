@@ -49,19 +49,27 @@ final public class LowerBoundPartialTour implements LowerBound
     public double initializeLowerBound() { return tourDistance( CITIES, partialTour ); }
 
     @Override
-    public double lowerBound() { return lowerBound; }
+    public double cost() { return lowerBound; }
+
+//    @Override
+//    public void update( final Integer city, final Integer newCity ) 
+//    {
+//        partialTour.add( newCity );
+////        cost = initializeLowerBound();
+//        lowerBound = parentTask.lowerBound // compute cost in O(1) time using parentTask.cost
+//                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
+//                + distance( CITIES[ 0 ], CITIES[ newCity ] )
+//                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
+//    }
+
+//    @Override
+//    public LowerBound clone() { return new LowerBoundPartialTour( newPartialTour ); }
 
     @Override
-    public void update( final Integer city, final Integer newCity ) 
+    public LowerBound make( TaskEuclideanTsp parentTask, Integer newCity ) 
     {
-        partialTour.add( newCity );
-//        lowerBound = initializeLowerBound();
-        lowerBound = parentTask.lowerBound // compute cost in O(1) time using parentTask.cost
-                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
-                + distance( CITIES[ 0 ], CITIES[ newCity ] )
-                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
+        List<Integer> newPartialTour = parentTask.tour();
+        newPartialTour.add( newCity );
+        return new LowerBoundPartialTour( newPartialTour );
     }
-
-    @Override
-    public LowerBound clone() { return new LowerBoundPartialTour( partialTour ); }
 }

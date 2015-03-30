@@ -77,7 +77,7 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         this.lowerBound = lowerBound;
         // not true when 1 or more elements of 1 or mre deques have been removed.  What is true?
         assert this.lowerBound == lowerBound : this.lowerBound + " != " + lowerBound;
-//        assert this.lowerBound == initializeLowerBound() : lowerBound + " " + this.lowerBound + " " +  initializeLowerBound();
+//        assert this.cost == initializeLowerBound() : cost + " " + this.cost + " " +  initializeLowerBound();
     }
     
     private boolean nnEquals( final List<Deque<Integer>> nearestNeighbors, final List<Deque<Integer>> copyNearestNeighbors )
@@ -158,33 +158,33 @@ final public class LowerBoundNearestNeighbors implements LowerBound
     }
 
     @Override
-    public double lowerBound() { return lowerBound; }
+    public double cost() { return lowerBound; }
 
-    @Override
-    public void update( final Integer city1, final Integer city2 ) 
-    {
-//        System.out.println("update: city1: " + city1 + " city2: " + city2 );
-        updateEndpoint( city1, city2 );
-        updateEndpoint( city2, city1 );
-        //lowerBound = recomputeLowerBound( city2 );
-    }
+//    @Override
+//    public void update( final Integer city1, final Integer city2 ) 
+//    {
+////        System.out.println("update: city1: " + city1 + " city2: " + city2 );
+//        updateEndpoint( city1, city2 );
+//        updateEndpoint( city2, city1 );
+//        //lowerBound = recomputeLowerBound( city2 );
+//    }
     
 //    private double recomputeLowerBound( Integer newEndpoint )
 //    {
 //        // contribution to lower bound of actual edges
-//        lowerBound = 2 * ( tourDistance( CITIES, partialTour with newEndpoint added ) - distance( CITIES[ 0 ], CITIES[ newEndpoint ] ) );
+//        cost = 2 * ( tourDistance( CITIES, partialTour with newEndpoint added ) - distance( CITIES[ 0 ], CITIES[ newEndpoint ] ) );
 //        
 //        // contribution to lower bound of lower bound edges of endpoints of partial tour
-//        lowerBound += distance( CITIES[ 0 ], CITIES[ nearestNeighbors.get( 0 ).peekFirst() ] );
-//        lowerBound += distance( CITIES[ newEndpoint ], CITIES[ nearestNeighbors.get( newEndpoint ).peekFirst() ] );
+//        cost += distance( CITIES[ 0 ], CITIES[ nearestNeighbors.get( 0 ).peekFirst() ] );
+//        cost += distance( CITIES[ newEndpoint ], CITIES[ nearestNeighbors.get( newEndpoint ).peekFirst() ] );
 //        
 //        // contribution to lower bound of unvisited cities
 //        for ( Integer unvisitedCity : unvisited )
 //        {
-//            lowerBound += distance( CITIES[ unvisitedCity ], CITIES[ nearestNeighbors.get( unvisitedCity ).peekFirst() ] );
-//            lowerBound += distance( CITIES[ unvisitedCity ], CITIES[ nearestNeighbors.get( unvisitedCity ).peekLast() ] );
+//            cost += distance( CITIES[ unvisitedCity ], CITIES[ nearestNeighbors.get( unvisitedCity ).peekFirst() ] );
+//            cost += distance( CITIES[ unvisitedCity ], CITIES[ nearestNeighbors.get( unvisitedCity ).peekLast() ] );
 //        }
-//        return lowerBound / 2.0;
+//        return cost / 2.0;
 //    }
     
     public void updateEndpoint( final Integer city, final Integer newEndpoint)
@@ -225,9 +225,15 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         System.out.println("Lower bound: " + lowerBoundNearestNeighbors.lowerBound + " expecting 5.");
     }
 
+//    @Override
+//    public LowerBound clone() 
+//    {
+//        return new LowerBoundNearestNeighbors( nearestNeighbors, cost );
+//    }
+
     @Override
-    public LowerBound clone() 
+    public LowerBound make(TaskEuclideanTsp parentTask, Integer newCity) 
     {
-        return new LowerBoundNearestNeighbors( nearestNeighbors, lowerBound );
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -54,25 +54,25 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     {
         this.partialTour = partialTour;
         this.unvisitedCities = unvisitedCities;
-//        lowerBound = new LowerBoundNearestNeighbors();
+//        cost = new LowerBoundNearestNeighbors();
         lowerBound = new LowerBoundPartialTour( partialTour );
     }
     
     TaskEuclideanTsp( TaskEuclideanTsp parentTask, Integer newCity )
     {
         partialTour = new LinkedList<>( parentTask.partialTour );
-//        lowerBound = parentTask.lowerBound // compute cost in O(1) time using parentTask.cost
+//        cost = parentTask.cost // compute cost in O(1) time using parentTask.cost
 //                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
 //                + distance( CITIES[ 0 ], CITIES[ newCity ] )
 //                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
         
-//        lowerBound  = parentTask.lowerBound.clone();
-//        lowerBound.update( partialTour.get( partialTour.size() - 1 ), newCity );
+//        cost  = parentTask.cost.clone();
+//        cost.update( partialTour.get( partialTour.size() - 1 ), newCity );
         lowerBound = parentTask.lowerBound.make( parentTask, newCity );
         
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities );     
         partialTour.add( newCity );
-//        System.out.println("TaskEuclideanTsp: partialTour: " + partialTour + " lowerBound: " + lowerBound.lowerBound() );
+//        System.out.println("TaskEuclideanTsp: partialTour: " + partialTour + " cost: " + cost.cost() );
         unvisitedCities.remove( newCity );
     }
     
@@ -100,13 +100,13 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
             List<TaskEuclideanTsp> children = currentTask.children( shared.minCost() );
             for ( TaskEuclideanTsp child : children )
             { 
-                assert child.lowerBound() < shared.minCost(); // unnecessary and may be false.
+                assert child.lowerBound().cost() < shared.minCost(); // unnecessary and may be false.
                 if ( child.isComplete() )
                 { 
                     minTour = child;
                     System.out.println("New minTour: " + minTour.lowerBound() + " " + minTour.partialTour);
-//                    shared(new SharedMinDouble( child.lowerBound ) );
-                    shared( new SharedMinDouble( child.lowerBound() ) );
+//                    shared(new SharedMinDouble( child.cost ) );
+                    shared( new SharedMinDouble( child.lowerBound().cost() ) );
                 } 
                 else 
                 { 
@@ -129,7 +129,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         return new ReturnSubtasks( new MinTour(), children );
     }
     
-    public double lowerBound() { return lowerBound.lowerBound(); }
+    public LowerBound lowerBound() { return lowerBound; }
     
     /**
      * Get children whose lower bound is less than the current upper bound.
@@ -142,7 +142,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         for ( Integer city : unvisitedCities )
         {
             TaskEuclideanTsp child = new TaskEuclideanTsp( this, city );
-            if ( child.lowerBound() < upperBound )
+            if ( child.lowerBound().cost() < upperBound )
             {
                 children.add( child );
             }
@@ -150,7 +150,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         return children;
     }
     
-    public double cost() { return lowerBound(); }
+    public double cost() { return lowerBound().cost(); }
     
     public List<Integer> tour() { return partialTour; }
     

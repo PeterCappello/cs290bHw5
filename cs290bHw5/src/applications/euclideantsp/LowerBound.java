@@ -35,11 +35,11 @@ public interface LowerBound
      */
     double initializeLowerBound();
     
-    double lowerBound();
+    double cost();
     
     LowerBound make( TaskEuclideanTsp parentTask, Integer newCity );
     
-    void update( Integer city, Integer newCity );
+//    void update( Integer city, Integer newCity );
     
-    LowerBound clone();
+//    LowerBound clone();
 }
