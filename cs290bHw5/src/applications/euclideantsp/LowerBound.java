@@ -29,17 +29,7 @@ package applications.euclideantsp;
  */
 public interface LowerBound 
 {
-    /**
-     *
-     * @return
-     */
-    double initializeLowerBound();
-    
     double cost();
     
-    LowerBound make( TaskEuclideanTsp parentTask, Integer newCity );
-    
-//    void update( Integer city, Integer newCity );
-    
-//    LowerBound clone();
+    LowerBound make( TaskEuclideanTsp parentTask, Integer newCity );    
 }

@@ -72,7 +72,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 //	{ 3, 6 }
 //    };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
-    static private final int NUM_COMPUTERS = 1;
+    static private final int NUM_COMPUTERS = 2;
     static private List<Integer> unvisitedCities()
     {
         final List<Integer> unvisitedCities = new ArrayList<>();

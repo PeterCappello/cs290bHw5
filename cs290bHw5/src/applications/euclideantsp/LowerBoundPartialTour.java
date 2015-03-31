@@ -26,6 +26,7 @@ package applications.euclideantsp;
 import clients.ClientEuclideanTsp;
 import java.util.ArrayList;
 import java.util.List;
+import static util.EuclideanGraph.distance;
 import static util.EuclideanGraph.tourDistance;
 
 /**
@@ -35,41 +36,31 @@ import static util.EuclideanGraph.tourDistance;
 final public class LowerBoundPartialTour implements LowerBound
 {
     static final private double[][] CITIES = ClientEuclideanTsp.CITIES;
-    
-           final private List<Integer> partialTour;
-                 private double lowerBound;
+           final private double lowerBound;
     
     public LowerBoundPartialTour( final List<Integer> partialTour )
     {
-        this.partialTour = new ArrayList( partialTour );
-        lowerBound = initializeLowerBound();
+        lowerBound = tourDistance( CITIES, partialTour );;
+    }
+    
+    private LowerBoundPartialTour( final TaskEuclideanTsp parentTask, final Integer newCity )
+    {
+        List<Integer> partialTour = new ArrayList( parentTask.tour() );
+        
+        // compute lower bound in O(1) time using parent lower bound
+        final Integer oldEndCity = partialTour.get( partialTour.size() - 1 );
+        lowerBound = parentTask.lowerBound().cost()
+                   - distance( CITIES[ 0 ], CITIES[ oldEndCity ] )
+                   + distance( CITIES[ 0 ], CITIES[ newCity ] )
+                   + distance( CITIES[ oldEndCity ], CITIES[ newCity ] );
     }
     
     @Override
-    public double initializeLowerBound() { return tourDistance( CITIES, partialTour ); }
-
-    @Override
     public double cost() { return lowerBound; }
-
-//    @Override
-//    public void update( final Integer city, final Integer newCity ) 
-//    {
-//        partialTour.add( newCity );
-////        cost = initializeLowerBound();
-//        lowerBound = parentTask.lowerBound // compute cost in O(1) time using parentTask.cost
-//                - distance( CITIES[ 0 ], CITIES[ partialTour.get( partialTour.size() - 1 ) ] )
-//                + distance( CITIES[ 0 ], CITIES[ newCity ] )
-//                + distance( CITIES[ partialTour.get( partialTour.size() - 1 ) ], CITIES[ newCity ] );
-//    }
-
-//    @Override
-//    public LowerBound clone() { return new LowerBoundPartialTour( newPartialTour ); }
 
     @Override
     public LowerBound make( TaskEuclideanTsp parentTask, Integer newCity ) 
-    {
-        List<Integer> newPartialTour = parentTask.tour();
-        newPartialTour.add( newCity );
-        return new LowerBoundPartialTour( newPartialTour );
+    {    
+        return new LowerBoundPartialTour( parentTask, newCity );
     }
 }
