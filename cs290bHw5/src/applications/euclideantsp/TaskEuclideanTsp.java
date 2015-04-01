@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import static util.EuclideanGraph.tourDistance;
 
 /**
  * Find a tour of minimum minCost among those that start with city 0, 
@@ -64,7 +65,6 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         lowerBound = parentTask.lowerBound.make( parentTask, newCity );
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities );     
         partialTour.add( newCity );
-//        System.out.println("TaskEuclideanTsp: partialTour: " + partialTour + " cost: " + cost.cost() );
         unvisitedCities.remove( newCity );
     }
     
@@ -92,12 +92,11 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
             List<TaskEuclideanTsp> children = currentTask.children( shared.minCost() );
             for ( TaskEuclideanTsp child : children )
             { 
-                assert child.lowerBound().cost() < shared.minCost(); // unnecessary and may be false.
                 if ( child.isComplete() )
                 { 
+                    assert tourDistance( CITIES, child.tour() ) == child.lowerBound().cost() : tourDistance( CITIES,  child.tour() ) + " " + child.lowerBound().cost();
                     minTour = child;
-//                    System.out.println("New minTour: " + minTour.lowerBound() + " " + minTour.partialTour);
-//                    shared(new SharedMinDouble( child.cost ) );
+                    System.out.println("New minTour: " + minTour.lowerBound().cost() + " " + minTour.partialTour);
                     shared( new SharedMinDouble( child.lowerBound().cost() ) );
                 } 
                 else 
@@ -106,7 +105,6 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
                 } 
             }  
         } 
-//        System.out.println("minTour: " + ( minTour == null ? " NULL" : minTour.partialTour));
         return new ReturnValue<>( this, minTour );
     }
 
@@ -164,6 +162,8 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         } );
         return stringBuilder.toString();
     }
+    
+    public List<Integer> unvisitedCities() { return unvisitedCities; }
    
    private boolean isComplete() { return unvisitedCities.isEmpty(); }
 }
