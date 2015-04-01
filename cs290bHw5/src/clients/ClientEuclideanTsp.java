@@ -50,7 +50,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 {
     // configure application
     static private final int NUM_PIXALS = 600;
-    static public  final double[][] CITIES = generateRandomGraph( 14, 9 );
+    static public  final double[][] CITIES = generateRandomGraph( 15, 11 );
 //    {
 //        { 0, 0 },
 //        { 0, 1 },
@@ -72,7 +72,7 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 //	{ 3, 6 }
 //    };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
-    static private final int NUM_COMPUTERS = 1;
+    static private final int NUM_COMPUTERS = 2;
     static private List<Integer> unvisitedCities()
     {
         final List<Integer> unvisitedCities = new ArrayList<>();
@@ -89,9 +89,9 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
         return partialTour;
     }
     static private final Task TASK = new TaskEuclideanTsp( partialTour(), unvisitedCities() );
-    static private final Shared SHARED = new SharedMinDouble( Double.MAX_VALUE );
-//    static private final double greedyUpperBound = tourDistance( CITIES, EuclideanGraph.greedyTour( CITIES ) );
-//    static private final Shared SHARED = new SharedMinDouble( greedyUpperBound );
+//    static private final Shared SHARED = new SharedMinDouble( Double.MAX_VALUE );
+    static private final double greedyUpperBound = tourDistance( CITIES, EuclideanGraph.greedyTour( CITIES ) );
+    static private final Shared SHARED = new SharedMinDouble( greedyUpperBound );
     
     public ClientEuclideanTsp() throws RemoteException
     { 

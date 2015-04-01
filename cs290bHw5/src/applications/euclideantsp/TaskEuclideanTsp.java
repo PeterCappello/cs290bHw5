@@ -96,7 +96,7 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
                 { 
                     assert tourDistance( CITIES, child.tour() ) == child.lowerBound().cost() : tourDistance( CITIES,  child.tour() ) + " " + child.lowerBound().cost();
                     minTour = child;
-                    System.out.println("New minTour: " + minTour.lowerBound().cost() + " " + minTour.partialTour);
+//                    System.out.println("New minTour: " + minTour.lowerBound().cost() + " " + minTour.partialTour);
                     shared( new SharedMinDouble( child.lowerBound().cost() ) );
                 } 
                 else 

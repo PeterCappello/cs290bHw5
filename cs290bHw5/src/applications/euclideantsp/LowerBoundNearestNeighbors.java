@@ -74,7 +74,6 @@ final public class LowerBoundNearestNeighbors implements LowerBound
             {
                 deque.add( array[ neighbor ] ); 
             }
-//            System.out.println(">>> COPY: " + deque );
             copyNearestNeighbors.add( deque );
         }
         this.nearestNeighborsList = copyNearestNeighbors;
@@ -149,7 +148,7 @@ final public class LowerBoundNearestNeighbors implements LowerBound
                     }
                 }
             }
-            System.out.println("city: " + city + " deque: " + cityNearestNeighbors );
+//            System.out.println("city: " + city + " deque: " + cityNearestNeighbors );
             assert ! cityNearestNeighbors.peekFirst().equals( EMPTY );
             assert ! cityNearestNeighbors.peekLast().equals(  EMPTY );
             assert distance( CITIES[ city ], CITIES[ cityNearestNeighbors.peekFirst() ] ) <= distance( CITIES[ city ], CITIES[ cityNearestNeighbors.peekLast() ] );
@@ -166,6 +165,11 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         // contribution to lower bound of actual edges of partial path
         List<Integer> partialTour = new ArrayList<>( task.tour() );
         partialTour.add( newCity );
+        if ( task.unvisitedCities().size() == 1 )
+        {
+            assert newCity.equals( task.unvisitedCities().get( 0 ) );
+            return tourDistance( CITIES, partialTour ); 
+        }
         double cost = 2 * ( tourDistance( CITIES, partialTour ) - distance( CITIES[ 0 ], CITIES[ newCity ] ) );
         
         // contribution to lower bound of lower bound edges of endpoints of partial path
@@ -215,12 +219,24 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         final Integer newCitysVirtualEndpoint = updateEndpoint( copyNearestNeighbors, newCity, oldCity );
         
         // update lowerBound incrementally
-//        final double newLowerBound = lowerBound
-//                     + distance( CITIES[ oldCity ], CITIES[ newCity ] )
-//                     - (  distance( CITIES[ oldCity ], CITIES[ oldCitysVirtualEndpoint ] )
-//                        + distance( CITIES[ newCity ], CITIES[ newCitysVirtualEndpoint ] )
-//                       ) / 2.0;
-        final double newLowerBound = recomputeLowerBound( parentTask, newCity );
+        double newLowerBound;
+        if ( parentTask.unvisitedCities().size() == 1 )
+        {
+            assert newCity.equals( parentTask.unvisitedCities().get( 0 ) );
+            partialTour.add( newCity );
+            
+            // !! replace w/ incremental computation of tour (see code below, but also add edge from 0 to newCity.
+            newLowerBound = tourDistance( CITIES, partialTour ); 
+        }
+        else
+        {
+            newLowerBound = lowerBound
+                + distance( CITIES[ oldCity ], CITIES[ newCity ] )
+                - (  distance( CITIES[ oldCity ], CITIES[ oldCitysVirtualEndpoint ] )
+                   + distance( CITIES[ newCity ], CITIES[ newCitysVirtualEndpoint ] )
+                  ) / 2.0;
+        }
+//        final double newLowerBound = recomputeLowerBound( parentTask, newCity );
 //        System.out.println("OLD lowerBound: " + lowerBound + " NEW lowerBound: " + newLowerBound + " path: " + parentTask.tour() + " + " + newCity );
 //        assert newLowerBound >= lowerBound : newLowerBound + " " + lowerBound;
         return new LowerBoundNearestNeighbors( copyNearestNeighbors, newLowerBound );
