@@ -228,7 +228,10 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         return true;
     }
     
-     private double recomputeLowerBound( TaskEuclideanTsp task, Integer newCity )
+    /**
+     * Computes lower bound from scratch: not incrementally.
+    */
+    private double recomputeLowerBound( TaskEuclideanTsp task, Integer newCity )
     {
         // contribution to lower bound of actual edges of partial path
         List<Integer> partialTour = new ArrayList<>( task.tour() );
