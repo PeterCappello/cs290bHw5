@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
-import static util.EuclideanGraph.tourDistance;
 
 /**
  * Find a tour of minimum minCost among those that start with city 0, 
