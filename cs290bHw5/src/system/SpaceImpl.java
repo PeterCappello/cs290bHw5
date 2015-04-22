@@ -292,6 +292,20 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
             return computer.execute( task );
         }
         
+        private void unregister( Task task, Computer computer, Worker worker )
+        {
+            readyTaskQ.add( task );
+            workerMap.remove( worker );
+            Logger.getLogger( this.getClass().getName() )
+                  .log( Level.WARNING, "Computer {0} failed.", computerId );
+            if ( workerMap.isEmpty() )
+            {
+                computerProxies.remove( computer );
+                Logger.getLogger( ComputerProxy.class.getCanonicalName() )
+                      .log( Level.WARNING, "Computer {0} failed.", computerId );
+            }
+        }
+        
         @Override
         public void exit() 
         { 
@@ -350,7 +364,8 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                 try { synchronized( this ) { wait(); } }
                 catch ( InterruptedException ex ) 
                 {
-                    Logger.getLogger( WorkerProxy.class.getName() ).log( Level.SEVERE, null, ex );
+                    Logger.getLogger( WorkerProxy.class.getName() )
+                          .log( Level.SEVERE, null, ex );
                 }
                 while ( true )
                 {
@@ -362,16 +377,13 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                     }
                     catch ( RemoteException ignore )
                     {
-                        readyTaskQ.add( task );
-                        workerMap.remove( worker );
-                        Logger.getLogger( this.getClass().getName() ).log( Level.WARNING, "Computer {0} failed.", computerId );
-                        if ( workerMap.isEmpty() )
-                        {
-                            computerProxies.remove( computer );
-                            Logger.getLogger( ComputerProxy.class.getCanonicalName() ).log( Level.WARNING, "Computer {0} failed.", computerId );
-                        }
+                        unregister( task, computer, worker );
                     } 
-                    catch ( InterruptedException ex ) { Logger.getLogger( this.getClass().getName()).log( Level.INFO, null, ex ); }
+                    catch ( InterruptedException ex ) 
+                    { 
+                        Logger.getLogger( this.getClass().getName() )
+                              .log( Level.INFO, null, ex ); 
+                    }
                 }
             }
             
