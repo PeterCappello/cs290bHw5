@@ -350,7 +350,8 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                 try { synchronized( this ) { wait(); } }
                 catch ( InterruptedException ex ) 
                 {
-                    Logger.getLogger( WorkerProxy.class.getName() ).log( Level.SEVERE, null, ex );
+                    Logger.getLogger( WorkerProxy.class.getName() )
+                          .log( Level.SEVERE, null, ex );
                 }
                 while ( true )
                 {
@@ -364,14 +365,20 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                     {
                         readyTaskQ.add( task );
                         workerMap.remove( worker );
-                        Logger.getLogger( this.getClass().getName() ).log( Level.WARNING, "Computer {0} failed.", computerId );
+                        Logger.getLogger( this.getClass().getName() )
+                              .log( Level.WARNING, "Computer {0} failed.", computerId );
                         if ( workerMap.isEmpty() )
                         {
                             computerProxies.remove( computer );
-                            Logger.getLogger( ComputerProxy.class.getCanonicalName() ).log( Level.WARNING, "Computer {0} failed.", computerId );
+                            Logger.getLogger( ComputerProxy.class.getCanonicalName() )
+                                  .log( Level.WARNING, "Computer {0} failed.", computerId );
                         }
                     } 
-                    catch ( InterruptedException ex ) { Logger.getLogger( this.getClass().getName()).log( Level.INFO, null, ex ); }
+                    catch ( InterruptedException ex ) 
+                    { 
+                        Logger.getLogger( this.getClass().getName())
+                              .log( Level.INFO, null, ex ); 
+                    }
                 }
             }
             

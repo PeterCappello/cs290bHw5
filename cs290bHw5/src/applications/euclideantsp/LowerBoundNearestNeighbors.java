@@ -126,11 +126,11 @@ final public class LowerBoundNearestNeighbors implements LowerBound
             deque.addAll( Arrays.asList( array ) );
             copyNearestNeighbors.add( deque );
         }
-        // update nearestNeighborsList incrementally with newCity
+        // oldCity is the end of the existing path nearestNeighborsList incrementally with newCity
         final List<Integer> partialTour = parentTask.tour();
         final Integer oldCity = partialTour.get( partialTour.size() - 1 );
         
-        // replace endpoint's virtual edge w/ actual edge
+        // update nearestNeighborsList incrementally: replace old & new path endpoints' virtual edge w/ actual edge
         final Integer oldCitysVirtualEndpoint = updateEndpoint( copyNearestNeighbors, oldCity, newCity );
         assert copyNearestNeighbors.get( oldCity ).size() < 2 : "from " + oldCity + " to " + newCity + " " + copyNearestNeighbors.get( oldCity );
         final Integer newCitysVirtualEndpoint = updateEndpoint( copyNearestNeighbors, newCity, oldCity );
