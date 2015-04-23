@@ -303,6 +303,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                 computerProxies.remove( computer );
                 Logger.getLogger( ComputerProxy.class.getCanonicalName() )
                       .log( Level.WARNING, "Computer {0} failed.", computerId );
+                interrupt();
             }
         }
         
@@ -321,12 +322,14 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                 try { downSharedQ.take(); } 
                 catch ( InterruptedException ex ) 
                 {
-                    Logger.getLogger( ComputerProxy.class.getName() ).log( Level.SEVERE, null, ex );
+                    Logger.getLogger( ComputerProxy.class.getName() )
+                          .log( Level.SEVERE, null, ex );
                 }
                 try { computer.downShared( shared.duplicate() ); } 
                 catch ( RemoteException ex ) 
                 {
-                    Logger.getLogger( ComputerProxy.class.getName() ).log( Level.SEVERE, null, ex );
+                    Logger.getLogger( ComputerProxy.class.getName() )
+                          .log( Level.SEVERE, null, ex );
                 }
             }
         }
@@ -378,6 +381,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                     catch ( RemoteException ignore )
                     {
                         unregister( task, computer, worker );
+                        break;
                     } 
                     catch ( InterruptedException ex ) 
                     { 
