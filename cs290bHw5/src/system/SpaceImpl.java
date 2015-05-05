@@ -292,6 +292,21 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
             return computer.execute( task );
         }
         
+        private void unregister( Task task, Computer computer, Worker worker )
+        {
+            readyTaskQ.add( task );
+            workerMap.remove( worker );
+            Logger.getLogger( this.getClass().getName() )
+                  .log( Level.WARNING, "Computer {0}: Worker failed.", computerId );
+            if ( workerMap.isEmpty() )
+            {
+                computerProxies.remove( computer );
+                Logger.getLogger( ComputerProxy.class.getCanonicalName() )
+                      .log( Level.WARNING, "Computer {0} failed.", computerId );
+                interrupt();
+            }
+        }
+        
         @Override
         public void exit() 
         { 
@@ -307,12 +322,14 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                 try { downSharedQ.take(); } 
                 catch ( InterruptedException ex ) 
                 {
-                    Logger.getLogger( ComputerProxy.class.getName() ).log( Level.SEVERE, null, ex );
+                    Logger.getLogger( ComputerProxy.class.getName() )
+                          .log( Level.SEVERE, null, ex );
                 }
                 try { computer.downShared( shared.duplicate() ); } 
                 catch ( RemoteException ex ) 
                 {
-                    Logger.getLogger( ComputerProxy.class.getName() ).log( Level.SEVERE, null, ex );
+                    Logger.getLogger( ComputerProxy.class.getName() )
+                          .log( Level.SEVERE, null, ex );
                 }
             }
         }
@@ -363,20 +380,12 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
                     }
                     catch ( RemoteException ignore )
                     {
-                        readyTaskQ.add( task );
-                        workerMap.remove( worker );
-                        Logger.getLogger( this.getClass().getName() )
-                              .log( Level.WARNING, "Computer {0} failed.", computerId );
-                        if ( workerMap.isEmpty() )
-                        {
-                            computerProxies.remove( computer );
-                            Logger.getLogger( ComputerProxy.class.getCanonicalName() )
-                                  .log( Level.WARNING, "Computer {0} failed.", computerId );
-                        }
+                        unregister( task, computer, worker );
+                        break;
                     } 
                     catch ( InterruptedException ex ) 
                     { 
-                        Logger.getLogger( this.getClass().getName())
+                        Logger.getLogger( this.getClass().getName() )
                               .log( Level.INFO, null, ex ); 
                     }
                 }
