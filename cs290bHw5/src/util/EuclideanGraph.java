@@ -63,12 +63,10 @@ public class EuclideanGraph
         {
             unvisitedCities.add( unvisitedCity );
         }
-        tour.add( 0 );
-        int baseCity = 0;
-        while ( ! unvisitedCities.isEmpty() )
+        tour.add( 0 );        
+        for ( int nearestCity = -1, baseCity = 0; ! unvisitedCities.isEmpty(); baseCity = nearestCity )
         {
-            // select city that is nearest to me among the unvisited cities
-            int nearestCity = -1;
+            // select unvisited city that is nearest to baseCity
             double nearestCityDistance = Double.MAX_VALUE;
             for ( Integer nextCity : unvisitedCities )
             {
@@ -87,12 +85,12 @@ public class EuclideanGraph
     
     public static double tourDistance( final double[][] cities, final List<Integer> tour )
     {
-        double cost = 0.0;
+        double cost = distance( cities[ tour.get( tour.size() - 1 ) ], cities[ 0 ] );
         for ( int city = 0; city < tour.size() - 1; city ++ )
         {
             cost += distance( cities[ tour.get( city ) ], cities[ tour.get( city + 1 ) ] );
         }
-        return cost + distance( cities[ tour.get( tour.size() - 1 ) ], cities[ 0 ] );
+        return cost;
     }
     
     public static double distance( final double[] city1, final double[] city2 )

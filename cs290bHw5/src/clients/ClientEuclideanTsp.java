@@ -50,27 +50,27 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 {
     // configure application
     static private final int NUM_PIXALS = 600;
-    static public  final double[][] CITIES = generateRandomGraph( 15, 11 );
+    static public  final double[][] CITIES = //generateRandomGraph( 15, 11 );
 //    {
 //        { 0, 0 },
 //        { 0, 1 },
 //        { 0, 2 },
 //        { 0, 3 }
 //    };
-//    {
-//	{ 1, 1 },
-//	{ 8, 1 },
-//	{ 8, 8 },
-//	{ 1, 8 },
-//	{ 2, 2 },
-//	{ 7, 2 },
-//	{ 7, 7 },
-//	{ 2, 7 },
-//	{ 3, 3 },
-//	{ 6, 3 },
-//	{ 6, 6 },
-//	{ 3, 6 }
-//    };
+    {
+	{ 1, 1 },
+	{ 8, 1 },
+	{ 8, 8 },
+	{ 1, 8 },
+	{ 2, 2 },
+	{ 7, 2 },
+	{ 7, 7 },
+	{ 2, 7 },
+	{ 3, 3 },
+	{ 6, 3 },
+	{ 6, 6 },
+	{ 3, 6 }
+    };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
     static private final int NUM_COMPUTERS = 2;
     static private List<Integer> unvisitedCities()
