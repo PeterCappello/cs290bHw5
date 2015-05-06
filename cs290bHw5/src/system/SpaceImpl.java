@@ -342,7 +342,8 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space, Compu
             try { computer.downShared( shared.duplicate() ); } 
             catch ( RemoteException ex ) 
             {
-                Logger.getLogger( SpaceImpl.class.getName() ).log( Level.SEVERE, null, ex );
+                Logger.getLogger( SpaceImpl.class.getName() )
+                      .log( Level.SEVERE, null, ex );
             }
             notifyWorkerProxies();
         }

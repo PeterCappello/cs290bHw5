@@ -57,8 +57,22 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 //        { 0, 2 },
 //        { 0, 3 }
 //    };
+//    {
+//	{ 1, 1 },
+//	{ 8, 1 },
+//	{ 8, 8 },
+//	{ 1, 8 },
+//	{ 2, 2 },
+//	{ 7, 2 },
+//	{ 7, 7 },
+//	{ 2, 7 },
+//	{ 3, 3 },
+//	{ 6, 3 },
+//	{ 6, 6 },
+//	{ 3, 6 }
+//    };
     {
-	{ 1, 1 },
+        { 1, 1 },
 	{ 8, 1 },
 	{ 8, 8 },
 	{ 1, 8 },
@@ -69,7 +83,11 @@ public class ClientEuclideanTsp extends Client<TaskEuclideanTsp>
 	{ 3, 3 },
 	{ 6, 3 },
 	{ 6, 6 },
-	{ 3, 6 }
+	{ 3, 6 },
+	{ 4, 4 },
+	{ 5, 4 },
+	{ 5, 5 },
+	{ 4, 5 }
     };
     static private Client client() throws RemoteException { return new ClientEuclideanTsp(); }
     static private final int NUM_COMPUTERS = 2;
