@@ -3,10 +3,10 @@
  *
  * Copyright 2015 peter.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * Permission is hereby granted, free of charge, to any person obtaining a replaceWith
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, replaceWith, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -23,48 +23,97 @@
  */
 package applications.euclideantsp;
 
-import api.ReturnSubtasks;
+import api.JobRunner;
+import api.ReturnDecomposition;
 import api.ReturnValue;
-import api.Task;
+import api.Shared;
+import system.Task;
 import api.TaskRecursive;
-import clients.ClientEuclideanTsp;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import util.EuclideanGraph;
+import static util.EuclideanGraph.tourDistance;
 
 /**
- * Find a tour of minimum minCost among those that start with city 0, 
+ * Find a tour of minimum cost among those that start with city 0, 
  followed by city secondCity.
  * @author Peter Cappello
  */
-public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
-//public class TaskEuclideanTsp extends TaskRecursive<Tour>
+public class TaskEuclideanTsp extends TaskRecursive<Tour>
 { 
-    static final private double[][] CITIES = ClientEuclideanTsp.CITIES;
+    // Configure Job
+    static final public double[][] CITIES =
+    {
+	{ 1, 1 },
+	{ 8, 1 },
+	{ 8, 8 },
+	{ 1, 8 },
+	{ 2, 2 },
+	{ 7, 2 },
+	{ 7, 7 },
+	{ 2, 7 },
+	{ 3, 3 },
+	{ 6, 3 },
+	{ 6, 6 },
+	{ 3, 6 },
+	{ 4, 4 },
+	{ 5, 4 },
+	{ 5, 5 },
+	{ 4, 5 }
+    };
+    static final private String FRAME_TITLE = "Euclidean TSP";
+    static final private Task TASK = new TaskEuclideanTsp();
+    static final private List<Integer> GREEDY_TOUR = EuclideanGraph.greedyTour( CITIES ) ;
+    static private final double UPPER_BOUND = tourDistance( CITIES, GREEDY_TOUR );
+    static private final Shared SHARED = new SharedTour( GREEDY_TOUR, UPPER_BOUND );
+    
+    public static void main( final String[] args ) throws Exception
+    {
+        new JobRunner( FRAME_TITLE, args ).run( TASK, SHARED );
+    }
+    
     static final Integer ONE = 1;
     static final Integer TWO = 2;
-    static final Integer MAX_UNVISITED_CITIES = 10;
+    static final Integer MAX_UNVISITED_CITIES = 12;
     
-    final private List<Integer> partialTour;
-    final private List<Integer> unvisitedCities;
-    final private LowerBound lowerBound;
+    private List<Integer> partialTour;
+    private List<Integer> unvisitedCities;
+    private LowerBound lowerBound;
+    private boolean partialTourContains1;
+    private boolean pruneMe;
             
-    public TaskEuclideanTsp( List<Integer> partialTour, List<Integer> unvisitedCities )
+    public TaskEuclideanTsp()
     {
-        this.partialTour = partialTour;
-        this.unvisitedCities = unvisitedCities;
-//        lowerBound = new LowerBoundNearestNeighbors();
-        lowerBound = new LowerBoundPartialTour( partialTour );
+        partialTour = new ArrayList<>();
+        partialTour.add( 0 );
+        this.unvisitedCities = new ArrayList<>();
+        for ( int city = 1; city < CITIES.length; city++ )
+        {
+            unvisitedCities.add( city );
+        }
+        lowerBound = new LowerBoundNearestNeighbors();
+//        lowerBound = new LowerBoundPartialTour( partialTour );
     }
     
     TaskEuclideanTsp( TaskEuclideanTsp parentTask, Integer newCity )
     {
+        if ( ! parentTask.partialTourContains1 && newCity.equals( TWO ) )
+        {
+            pruneMe = true;
+            return;
+        }
         partialTour = new ArrayList<>( parentTask.partialTour );
         lowerBound = parentTask.lowerBound.make( parentTask, newCity );
-        unvisitedCities = new LinkedList<>( parentTask.unvisitedCities );     
+        unvisitedCities = new LinkedList<>( parentTask.unvisitedCities ); 
+        
         partialTour.add( newCity );
         unvisitedCities.remove( newCity );
+        if ( newCity.equals( ONE ) )
+        {
+            partialTourContains1 = true;
+        }
     }
     
     @Override
@@ -81,20 +130,22 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
     {
         Stack<TaskEuclideanTsp> stack = new Stack<>();
         stack.push( this );
-        SharedMinDouble shared = ( SharedMinDouble ) shared();
-        TaskEuclideanTsp minTour = null;
-        while (  ! stack.isEmpty() ) 
+        SharedTour sharedTour = ( SharedTour ) shared();
+        List<Integer> shortestTour = sharedTour.tour();
+        double shortestTourCost = sharedTour.cost();
+        while ( ! stack.isEmpty() ) 
         {
             TaskEuclideanTsp currentTask = stack.pop();
             
-            // get children whose lower bound is less than current upper bound.
-            List<TaskEuclideanTsp> children = currentTask.children( shared.minCost() );
+            // get children with lower bound < current upper bound.
+            List<TaskEuclideanTsp> children = currentTask.children( sharedTour.cost() );
             for ( TaskEuclideanTsp child : children )
             { 
                 if ( child.isComplete() )
                 { 
-                    minTour = child;
-                    shared( new SharedMinDouble( child.lowerBound().cost() ) );
+                    shortestTour = child.tour();
+                    shortestTourCost = child.lowerBound().cost();
+                    shared( new SharedTour( child.tour(), child.lowerBound().cost() ) );
                 } 
                 else 
                 { 
@@ -102,18 +153,22 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
                 } 
             }  
         } 
-        return new ReturnValue<>( this, minTour );
+        return new ReturnValueTour( this, new Tour( shortestTour, shortestTourCost ) );
     }
 
     @Override
-    public ReturnSubtasks decompose() 
+    public ReturnDecomposition divideAndConquer() 
     {
         final List<Task> children = new  LinkedList<>();
         for ( Integer city : unvisitedCities )
         {
-            children.add( new TaskEuclideanTsp( this, city ) );
+            TaskEuclideanTsp child = new TaskEuclideanTsp( this, city );
+            if ( ! child.pruneMe )
+            {
+                children.add( child );
+            }
         }
-        return new ReturnSubtasks( new MinTour(), children );
+        return new ReturnDecomposition( new MinTour(), children );
     }
     
     public LowerBound lowerBound() { return lowerBound; }
@@ -129,9 +184,9 @@ public class TaskEuclideanTsp extends TaskRecursive<TaskEuclideanTsp>
         for ( Integer city : unvisitedCities )
         {
             TaskEuclideanTsp child = new TaskEuclideanTsp( this, city );
-            if ( child.lowerBound().cost() < upperBound )
+            if ( ! child.pruneMe && child.lowerBound().cost() < upperBound )
             {
-                children.add( child );
+                    children.add( child );
             }
         }
         return children;

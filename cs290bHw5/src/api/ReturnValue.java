@@ -23,6 +23,8 @@
  */
 package api;
 
+import javax.swing.JLabel;
+import system.Task;
 import system.Return;
 import system.SpaceImpl;
 
@@ -31,7 +33,7 @@ import system.SpaceImpl;
  * @author Peter Cappello
  * @param <T>
  */
-public class ReturnValue<T> extends Return
+abstract public class ReturnValue<T> extends Return
 {    
     final private int composeId;
     final private int composeArgNum;
@@ -48,12 +50,12 @@ public class ReturnValue<T> extends Return
     public T value() { return value; }
    
     /**
-     *
+     * Update the taskCompose task that is waiting for this input.
      * @param associatedTask unused - the task whose Result is to be processed.
-     * @param space
+     * @param space containing the taskCompose task that is waiting for this value.
      */
     @Override
-    public void process( Task associatedTask, SpaceImpl space )
+    public void process( final Task associatedTask, final SpaceImpl space )
     {
         if ( associatedTask instanceof TaskCompose )
         {
@@ -67,22 +69,18 @@ public class ReturnValue<T> extends Return
             t1(   taskRunTime() );
             tInf( taskRunTime() );
         }
-        
         if ( composeId == SpaceImpl.FINAL_RETURN_VALUE )
         {
             space.tInf( tInf() );
             space.putResult( this );
             return;
         }
-        TaskCompose compose = space.getCompose( composeId );
-        assert compose != null && ! compose.isReady();
-        compose.arg( composeArgNum, value );
-        compose.sumChildT1( t1() );
-        compose.maxChildTInf( tInf() );
-        if ( compose.isReady() )
-        {
-            space.putReadyTask( compose );
-            space.removeWaitingTask( composeId );
-        }
+        TaskCompose taskCompose = space.getCompose( composeId );
+        assert taskCompose != null;
+        taskCompose.arg( composeArgNum, value, space );
+        taskCompose.sumChildT1( t1() );
+        taskCompose.maxChildTInf( tInf() );
     }
+    
+    abstract public JLabel view();
 }

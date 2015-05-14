@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 peter.
+ * Copyright 2015 Peter Cappello.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,42 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package api;
-import java.io.Serializable;
-import system.Return;
-import java.util.concurrent.Callable;
-import system.Computer2Space;
-import system.ComputerImpl;
+package applications.fibonacci;
+
+import api.ReturnValue;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import system.Task;
 
 /**
  *
  * @author Peter Cappello
  */
-abstract public class Task implements Serializable, Callable<Return> 
-{ 
-    private int id;
-    private int composeId;
-    private int composeArgNum;
-    private ComputerImpl computerImpl;
-    protected Computer2Space space;
+public class ReturnValueFibonacci extends ReturnValue<Integer>
+{    
+    ReturnValueFibonacci( final Task task, Integer value )
+    {
+        super( task, value );
+    }
     
     @Override
-    abstract public Return call(); 
-        
-    public int  id() { return id; }
-    public void id( int id ) { this.id = id; }
-    
-    public int  composeArgNum() { return composeArgNum; }
-    public void composeArgNum( int composeArgNum ) { this.composeArgNum = composeArgNum; }
-    
-    public int  composeId() { return composeId; }
-    public void composeId( int composeId ) { this.composeId = composeId; }
-    
-    public void computer( ComputerImpl computerImpl ) { this.computerImpl = computerImpl; }
-    
-    public Shared shared() { return computerImpl.shared(); }
-    
-    public void shared( Shared shared ) { computerImpl.upShared( shared ); }
-    
-    public boolean isSpaceCallable() { return this instanceof TaskCompose; }
+    public JLabel view() 
+    {
+        return new JLabel( "    The Fibonacci number is " + value() + "    ", SwingConstants.CENTER ) ;
+    }
 }

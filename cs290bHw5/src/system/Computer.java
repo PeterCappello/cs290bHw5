@@ -23,19 +23,17 @@
  */
 package system;
 
-import api.Computer;
 import api.Shared;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
 
 /**
  *
  * @author Peter Cappello
  */
-public interface Computer2Space extends Remote //Space
-{
-    void registerExternalComputer( Computer computer, List<Worker> workerList ) throws RemoteException;
+public interface Computer extends Remote
+{        
+    public Return execute( Task task ) throws RemoteException; 
     
-    void upShared( Shared shared ) throws RemoteException;
+    void downShared( Shared shared ) throws RemoteException;
 }
