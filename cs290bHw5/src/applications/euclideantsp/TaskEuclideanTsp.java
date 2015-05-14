@@ -66,7 +66,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     static final private String FRAME_TITLE = "Euclidean TSP";
     static final private Task TASK = new TaskEuclideanTsp();
     static final private List<Integer> GREEDY_TOUR = EuclideanGraph.greedyTour( CITIES ) ;
-    static private final double UPPER_BOUND = tourDistance( CITIES, GREEDY_TOUR );
+    static private final double UPPER_BOUND = /*32.971; */ tourDistance( CITIES, GREEDY_TOUR );
     static private final Shared SHARED = new SharedTour( GREEDY_TOUR, UPPER_BOUND );
     
     public static void main( final String[] args ) throws Exception
@@ -76,7 +76,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     
     static final Integer ONE = 1;
     static final Integer TWO = 2;
-    static final Integer MAX_UNVISITED_CITIES = 12;
+    static final Integer MAX_UNVISITED_CITIES = 11;
     
     private List<Integer> partialTour;
     private List<Integer> unvisitedCities;
