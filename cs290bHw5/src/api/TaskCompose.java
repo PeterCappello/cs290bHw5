@@ -5,9 +5,10 @@
  */
 package api;
 
-import system.Task;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
+import system.Task;
 import java.util.List;
 import system.Configuration;
 import system.SpaceImpl;
@@ -49,7 +50,12 @@ public abstract class TaskCompose<I> extends Task
         {
             if ( Configuration.SPACE_CALLABLE )
             {
-                space.processResult( this, this.call() ); // assumes TaskCompose is SPACE_CALLABLE.
+                try 
+                { 
+                    // assumes TaskCompose is SPACE_CALLABLE.
+                    space.processResult( this, space.computer().execute( this ) );
+                }
+                catch ( RemoteException ignore ) {}                 
             }
             else
             {
