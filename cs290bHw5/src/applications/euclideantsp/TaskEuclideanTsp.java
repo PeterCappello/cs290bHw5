@@ -60,7 +60,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
 	{ 3, 6 },
 	{ 4, 4 },
 	{ 5, 4 },
-//	{ 5, 5 },
+	{ 5, 5 },
 	{ 4, 5 }
     };
     static final private String FRAME_TITLE = "Euclidean TSP";
@@ -76,7 +76,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     
     static final Integer ONE = 1;
     static final Integer TWO = 2;
-    static final Integer MAX_UNVISITED_CITIES = 11;
+    static final Integer MAX_UNVISITED_CITIES = 12;
     
     private List<Integer> partialTour;
     private List<Integer> unvisitedCities;
