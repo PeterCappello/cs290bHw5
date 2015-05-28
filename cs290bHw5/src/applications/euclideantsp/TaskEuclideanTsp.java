@@ -74,15 +74,14 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         new JobRunner( FRAME_TITLE, args ).run( TASK, SHARED );
     }
     
-    static final Integer ONE = 1;
-    static final Integer TWO = 2;
-    static final Integer MAX_UNVISITED_CITIES = 12;
-    
-    private List<Integer> partialTour;
-    private List<Integer> unvisitedCities;
-    private LowerBound lowerBound;
-    private boolean partialTourContains1;
-    private boolean pruneMe;
+    static private final Integer ONE = 1;
+    static private final Integer TWO = 2;
+    static private final Integer MAX_UNVISITED_CITIES = 13;
+           private List<Integer> partialTour;
+           private List<Integer> unvisitedCities;
+           private LowerBound lowerBound;
+           private boolean partialTourContains1;
+           private boolean pruneMe;
             
     public TaskEuclideanTsp()
     {
@@ -93,8 +92,8 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         {
             unvisitedCities.add( city );
         }
-        lowerBound = new LowerBoundNearestNeighbors();
-//        lowerBound = new LowerBoundPartialTour( partialTour );
+//        lowerBound = new LowerBoundNearestNeighbors();
+        lowerBound = new LowerBoundPartialTour( partialTour );
     }
     
     TaskEuclideanTsp( TaskEuclideanTsp parentTask, Integer newCity )
@@ -116,8 +115,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         }
     }
     
-    @Override
-    public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
+    @Override public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
     
     /**
      * Produce a tour of minimum cost from the set of tours, having as its
@@ -125,8 +123,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
      * followed by a permutation of the unvisited cities.
      * @return a tour of minimum cost.
      */
-     @Override
-    public ReturnValue solve() 
+     @Override public ReturnValue solve() 
     {
         Stack<TaskEuclideanTsp> stack = new Stack<>();
         stack.push( this );
@@ -136,11 +133,9 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         while ( ! stack.isEmpty() ) 
         {
             TaskEuclideanTsp currentTask = stack.pop();
-            
-            // get children with lower bound < current upper bound.
             List<TaskEuclideanTsp> children = currentTask.children( sharedTour.cost() );
             for ( TaskEuclideanTsp child : children )
-            { 
+            {   // children with lower bound < current upper bound.
                 if ( child.isComplete() )
                 { 
                     shortestTour = child.tour();
@@ -156,8 +151,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         return new ReturnValueTour( this, new Tour( shortestTour, shortestTourCost ) );
     }
 
-    @Override
-    public ReturnDecomposition divideAndConquer() 
+    @Override public ReturnDecomposition divideAndConquer() 
     {
         final List<Task> children = new  LinkedList<>();
         for ( Integer city : unvisitedCities )
@@ -196,8 +190,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     
     public List<Integer> tour() { return partialTour; }
     
-    @Override
-    public String toString()
+    @Override public String toString()
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append( getClass() );
