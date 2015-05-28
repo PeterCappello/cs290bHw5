@@ -31,9 +31,9 @@ import system.SpaceImpl;
 public class ReturnDecomposition extends Return
 {    
     final private TaskCompose compose;
-    final private List<Task> tasks;
+    final private List<? extends Task> tasks;
     
-    public ReturnDecomposition( TaskCompose compose, List<Task> tasks )
+    public ReturnDecomposition( TaskCompose compose, List<? extends Task> tasks )
     {
         this.compose = compose;
         this.tasks = tasks;
@@ -41,7 +41,7 @@ public class ReturnDecomposition extends Return
     
     public TaskCompose compose() { return compose; }
     
-    public List<Task> tasks() { return tasks; }
+    public List<? extends Task> tasks() { return tasks; }
     
     /**
      *
