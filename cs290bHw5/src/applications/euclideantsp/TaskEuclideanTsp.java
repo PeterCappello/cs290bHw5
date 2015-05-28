@@ -116,8 +116,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         }
     }
     
-    @Override
-    public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
+    @Override public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
     
     /**
      * Produce a tour of minimum cost from the set of tours, having as its
@@ -125,8 +124,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
      * followed by a permutation of the unvisited cities.
      * @return a tour of minimum cost.
      */
-     @Override
-    public ReturnValue solve() 
+     @Override public ReturnValue solve() 
     {
         Stack<TaskEuclideanTsp> stack = new Stack<>();
         stack.push( this );
@@ -156,19 +154,9 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
         return new ReturnValueTour( this, new Tour( shortestTour, shortestTourCost ) );
     }
 
-    @Override
-    public ReturnDecomposition divideAndConquer() 
+    @Override public ReturnDecomposition divideAndConquer() 
     {
-        final List<Task> children = new  LinkedList<>();
-        for ( Integer city : unvisitedCities )
-        {
-            TaskEuclideanTsp child = new TaskEuclideanTsp( this, city );
-            if ( ! child.pruneMe )
-            {
-                children.add( child );
-            }
-        }
-        return new ReturnDecomposition( new MinTour(), children );
+        return new ReturnDecomposition( new MinTour(), children( ( ( SharedTour ) shared() ).cost() ) );
     }
     
     public LowerBound lowerBound() { return lowerBound; }
@@ -196,8 +184,7 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     
     public List<Integer> tour() { return partialTour; }
     
-    @Override
-    public String toString()
+    @Override public String toString()
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append( getClass() );
@@ -217,5 +204,5 @@ public class TaskEuclideanTsp extends TaskRecursive<Tour>
     
     public List<Integer> unvisitedCities() { return unvisitedCities; }
    
-   private boolean isComplete() { return unvisitedCities.isEmpty(); }
+    private boolean isComplete() { return unvisitedCities.isEmpty(); }
 }
