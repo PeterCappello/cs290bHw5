@@ -69,19 +69,33 @@ public class EuclideanGraph
         tour.add( 0 );        
         for ( int nearestCity = -1, baseCity = 0; ! unvisitedCities.isEmpty(); baseCity = nearestCity )
         {
-            // select unvisited city that is nearest to baseCity
+            // select unvisited city that is nearest to baseCity 
+            // ?? should I redo in terms of for ( int i = 0; i < unvisitedCities.size(); i+ )
             double nearestCityDistance = Double.MAX_VALUE;
-            for ( Integer nextCity : unvisitedCities )
+//            for ( Integer nextCity : unvisitedCities )
+//            {
+//                double nextCityDistance = distance( cities[ baseCity ], cities[ nextCity ] );
+//                if ( nextCityDistance < nearestCityDistance )
+//                {
+//                   nearestCity = nextCity;
+//                   nearestCityDistance = nextCityDistance;
+//                   // nearestCityIndex = i;
+//                }
+//            }
+            int nearestCityIndex = 0;
+            for ( int i = 0; i < unvisitedCities.size(); i++ )
             {
+                Integer nextCity = unvisitedCities.get( i );
                 double nextCityDistance = distance( cities[ baseCity ], cities[ nextCity ] );
                 if ( nextCityDistance < nearestCityDistance )
                 {
                    nearestCity = nextCity;
                    nearestCityDistance = nextCityDistance;
+                   nearestCityIndex = i;
                 }
             }
+            unvisitedCities.remove( nearestCityIndex );
             tour.add( nearestCity );
-            unvisitedCities.remove( new Integer( nearestCity ) );
         }
         Logger.getLogger( EuclideanGraph.class.getCanonicalName() )
               .log(Level.INFO, "\n\tTour: {0}\n\tCost: {1}", new Object[]{ tour, tourDistance( cities, tour ) } );

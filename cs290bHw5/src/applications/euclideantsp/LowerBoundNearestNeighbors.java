@@ -56,10 +56,7 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         {
             Deque<Integer> deque = new ArrayDeque<>();
             Integer[] array = nearestNeighbors.get( city ).toArray(new Integer[0]);
-            for ( int neighbor = 0; neighbor < array.length; neighbor++ )
-            {
-                deque.add( array[ neighbor ] ); 
-            }
+            deque.addAll( Arrays.asList( array ) );
             copyNearestNeighbors.add( deque );
         }
         this.nearestNeighborsList = copyNearestNeighbors;
