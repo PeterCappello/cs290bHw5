@@ -34,7 +34,7 @@ import static util.EuclideanGraph.tourDistance;
  */
 final public class LowerBoundPartialTour implements LowerBound
 {
-    static final private double[][] CITIES = TaskEuclideanTsp.CITIES;
+    static final private double[][] CITIES = TaskTsp.CITIES;
            final private double lowerBound;
     
     public LowerBoundPartialTour( final List<Integer> partialTour )
@@ -42,7 +42,7 @@ final public class LowerBoundPartialTour implements LowerBound
         lowerBound = tourDistance( CITIES, partialTour );;
     }
     
-    private LowerBoundPartialTour( final TaskEuclideanTsp parentTask, final Integer newCity )
+    private LowerBoundPartialTour( final TaskTsp parentTask, final Integer newCity )
     {
         List<Integer> partialTour = new ArrayList( parentTask.tour() );
         
@@ -58,7 +58,7 @@ final public class LowerBoundPartialTour implements LowerBound
     public double cost() { return lowerBound; }
 
     @Override
-    public LowerBound make( TaskEuclideanTsp parentTask, Integer newCity ) 
+    public LowerBound make( TaskTsp parentTask, Integer newCity ) 
     {    
         return new LowerBoundPartialTour( parentTask, newCity );
     }

@@ -30,5 +30,5 @@ package system;
 public interface Configuration 
 {
     static final public boolean SPACE_CALLABLE  = true;
-    static final public boolean MULTI_COMPUTERS = false;
+    static final public boolean MULTI_COMPUTERS = true;
 }

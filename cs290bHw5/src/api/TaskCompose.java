@@ -59,7 +59,7 @@ public abstract class TaskCompose<I> extends Task
             }
             else
             {
-                space.putReadyTask( this );
+                space.addReadyTask( this );
             }
             space.removeWaitingTask( id() );
         }

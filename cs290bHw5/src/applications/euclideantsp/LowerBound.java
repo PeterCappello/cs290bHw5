@@ -31,5 +31,5 @@ public interface LowerBound
 {
     double cost();
     
-    LowerBound make( TaskEuclideanTsp parentTask, Integer newCity );    
+    LowerBound make( TaskTsp parentTask, Integer newCity );    
 }

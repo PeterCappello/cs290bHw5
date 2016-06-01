@@ -24,11 +24,13 @@
 package util;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import static util.EuclideanGraph.distance;
 
 /**
@@ -56,50 +58,6 @@ public class EuclideanGraph
             vertex[ Y ] = random.nextDouble();
         }
         return vertices;
-    }
-    
-    public static List<Integer> greedyTour( double[][] cities )
-    {
-        List<Integer> tour = new LinkedList<>();
-        List<Integer> unvisitedCities = new ArrayList<>();
-        for ( int unvisitedCity = 1; unvisitedCity < cities.length; unvisitedCity++ )
-        {
-            unvisitedCities.add( unvisitedCity );
-        }
-        tour.add( 0 );        
-        for ( int nearestCity = -1, baseCity = 0; ! unvisitedCities.isEmpty(); baseCity = nearestCity )
-        {
-            // select unvisited city that is nearest to baseCity 
-            // ?? should I redo in terms of for ( int i = 0; i < unvisitedCities.size(); i+ )
-            double nearestCityDistance = Double.MAX_VALUE;
-//            for ( Integer nextCity : unvisitedCities )
-//            {
-//                double nextCityDistance = distance( cities[ baseCity ], cities[ nextCity ] );
-//                if ( nextCityDistance < nearestCityDistance )
-//                {
-//                   nearestCity = nextCity;
-//                   nearestCityDistance = nextCityDistance;
-//                   // nearestCityIndex = i;
-//                }
-//            }
-            int nearestCityIndex = 0;
-            for ( int i = 0; i < unvisitedCities.size(); i++ )
-            {
-                Integer nextCity = unvisitedCities.get( i );
-                double nextCityDistance = distance( cities[ baseCity ], cities[ nextCity ] );
-                if ( nextCityDistance < nearestCityDistance )
-                {
-                   nearestCity = nextCity;
-                   nearestCityDistance = nextCityDistance;
-                   nearestCityIndex = i;
-                }
-            }
-            unvisitedCities.remove( nearestCityIndex );
-            tour.add( nearestCity );
-        }
-        Logger.getLogger( EuclideanGraph.class.getCanonicalName() )
-              .log(Level.INFO, "\n\tTour: {0}\n\tCost: {1}", new Object[]{ tour, tourDistance( cities, tour ) } );
-        return tour;
     }
     
     public static double tourDistance( final double[][] cities, final List<Integer> tour )

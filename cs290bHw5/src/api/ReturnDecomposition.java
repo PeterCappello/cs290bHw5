@@ -64,7 +64,7 @@ public class ReturnDecomposition extends Return
             task.id( space.makeTaskId() );
             task.composeId( composeId );
             task.composeArgNum( i );
-            space.putReadyTask( task ); 
+            space.addReadyTask( task ); 
         }
     }
 }

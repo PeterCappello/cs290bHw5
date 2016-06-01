@@ -38,7 +38,7 @@ import static util.EuclideanGraph.tourDistance;
 final public class LowerBoundNearestNeighbors implements LowerBound 
 {
     static final private Integer    EMPTY = -1;
-    static final private double[][] CITIES = TaskEuclideanTsp.CITIES;
+    static final private double[][] CITIES = TaskTsp.CITIES;
     
            final private List<Deque<Integer>> nearestNeighborsList;
            final private double lowerBound;
@@ -111,7 +111,7 @@ final public class LowerBoundNearestNeighbors implements LowerBound
     public double cost() { return lowerBound; }
     
     @Override
-    public LowerBound make( TaskEuclideanTsp parentTask, Integer newCity ) 
+    public LowerBound make( TaskTsp parentTask, Integer newCity ) 
     {
         // make a copy of nearestNeighbors: List<Deque<Integer>>
         final List<Deque<Integer>> copyNearestNeighbors = new ArrayList<>();
@@ -223,7 +223,7 @@ final public class LowerBoundNearestNeighbors implements LowerBound
     /**
      * Computes lower bound from scratch: not incrementally.
     */
-    private double recomputeLowerBound( TaskEuclideanTsp task, Integer newCity )
+    private double recomputeLowerBound( TaskTsp task, Integer newCity )
     {
         // contribution to lower bound of actual edges of partial path
         List<Integer> partialTour = new ArrayList<>( task.tour() );

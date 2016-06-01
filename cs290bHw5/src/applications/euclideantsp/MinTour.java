@@ -25,6 +25,7 @@ package applications.euclideantsp;
 
 import api.ReturnValue;
 import api.TaskCompose;
+import java.util.Comparator;
 
 /**
  *
@@ -35,14 +36,19 @@ public class MinTour extends TaskCompose<Tour>
     @Override
     public ReturnValue call() 
     {
-        Tour shortestTour = args().remove( 0 );
-        for ( Tour tour : args() ) 
-        {
-            if ( tour.compareTo( shortestTour ) < 0 )
-            {
-                shortestTour = tour;
-            }
-        }
-        return new ReturnValueTour( this, shortestTour );
+//        Tour shortestTour = args().remove( 0 );
+//        for ( Tour tour : args() ) 
+//        {
+//            if ( tour.compareTo( shortestTour ) < 0 )
+//            {
+//                shortestTour = tour;
+//            }
+//        }
+//        return new ReturnValueTour( this, shortestTour );return new ReturnValueTour( this, 
+          return new ReturnValueTour( this, 
+                args().stream()
+                      .min( Comparator.comparingDouble( Tour::cost ) )
+                      .get() 
+        );
     }
 }

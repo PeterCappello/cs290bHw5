@@ -68,7 +68,7 @@ public interface Space extends Remote
      * @param taskList
      * @throws RemoteException
      */
-    void putAll ( final List<Task> taskList ) throws RemoteException;
+    void addAll ( final List<Task> taskList ) throws RemoteException;
     
     /**
      *

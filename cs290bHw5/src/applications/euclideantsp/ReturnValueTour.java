@@ -24,7 +24,7 @@
 package applications.euclideantsp;
 
 import api.ReturnValue;
-import static applications.euclideantsp.TaskEuclideanTsp.CITIES;
+import static applications.euclideantsp.TaskTsp.CITIES;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
