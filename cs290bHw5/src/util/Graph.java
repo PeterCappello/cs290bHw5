@@ -23,7 +23,7 @@
  */
 package util;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -52,7 +52,9 @@ public class Graph
     
     public static List<Integer> greedyTour( double[][] cities )
     {
-        List<Integer> tour = Arrays.asList( 0 );
+//        List<Integer> tour = Arrays.asList( 0 );
+        List<Integer> tour = new ArrayList<>();
+        tour.add( 0 );
         List<Integer> unvisitedCities = IntStream.range( 1, cities.length ).boxed().collect( Collectors.toList() );
         for ( int nearestCity = -1, baseCity = 0; ! unvisitedCities.isEmpty(); baseCity = nearestCity )
         {

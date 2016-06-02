@@ -46,7 +46,6 @@ import util.Graph;
 public class TaskTsp extends TaskRecursive<Tour>
 { 
     // Configure Job
-//    static final public double[][] CITIES = Graph.makeGraph( 13, 2 ); // 14, 8 ??
     static final public double[][] CITIES =
     {
 	{ 1, 1 },
@@ -60,10 +59,10 @@ public class TaskTsp extends TaskRecursive<Tour>
 	{ 3, 3 },
 	{ 6, 3 },
 	{ 6, 6 },
-//	{ 3, 6 },
-//	{ 4, 4 },
-//	{ 5, 4 },
-//	{ 5, 5 },
+	{ 3, 6 },
+	{ 4, 4 },
+	{ 5, 4 },
+	{ 5, 5 },
 	{ 4, 5 }
     };
     static final private String FRAME_TITLE = "Euclidean TSP";

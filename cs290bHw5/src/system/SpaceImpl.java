@@ -54,7 +54,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     static final private AtomicInteger computerIds = new AtomicInteger();
     
     final private AtomicInteger taskIds = new AtomicInteger();
-//    final private BlockingQueue<Task>     readyTasks = new LinkedBlockingQueue<>();
     final private BlockingDeque<Task>     readyTasks = new LinkedBlockingDeque<>();
     final private BlockingQueue<ReturnValue> resultQ = new LinkedBlockingQueue<>();
     final private Map<Computer, ComputerProxy> computerProxies = Collections.synchronizedMap( new HashMap<>() );
