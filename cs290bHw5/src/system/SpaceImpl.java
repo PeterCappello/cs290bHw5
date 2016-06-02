@@ -133,9 +133,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     @Override
     synchronized public void addAll( final List<Task> taskList )
     {
-        taskList.stream().forEach( task -> 
-            addReadyTask( task )
-        );
+        taskList.stream().forEach( this::addReadyTask );
     }
 
     /**
