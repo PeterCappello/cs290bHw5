@@ -39,7 +39,7 @@ final public class LowerBoundPartialTour implements LowerBound
     
     public LowerBoundPartialTour( final List<Integer> partialTour )
     {
-        lowerBound = tourDistance( CITIES, partialTour );;
+        lowerBound = tourDistance( CITIES, partialTour );
     }
     
     private LowerBoundPartialTour( final TaskTsp parentTask, final Integer newCity )

@@ -30,10 +30,12 @@ import api.Shared;
 import system.Task;
 import api.TaskRecursive;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import util.EuclideanGraph;
 import static util.EuclideanGraph.tourDistance;
 import util.Graph;
@@ -88,13 +90,10 @@ public class TaskTsp extends TaskRecursive<Tour>
             
     public TaskTsp()
     {
-        partialTour = new ArrayList<>();
-        partialTour.add( 0 );
-        this.unvisitedCities = new ArrayList<>();
-        for ( int city = 1; city < CITIES.length; city++ )
-        {
-            unvisitedCities.add( city );
-        }
+        partialTour = Arrays.asList( 0 );
+        unvisitedCities = IntStream.range( 1, CITIES.length )
+                .boxed()
+                .collect( Collectors.toList() );
         lowerBound = new LowerBoundNearestNeighbors();
 //        lowerBound = new LowerBoundPartialTour( partialTour );
     }
