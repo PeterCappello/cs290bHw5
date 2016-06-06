@@ -109,11 +109,7 @@ public class TaskTsp extends TaskRecursive<Tour>
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities ); 
         partialTour.add( newCity );
         unvisitedCities.remove( newCity );
-//        if ( newCity.equals( ONE ) )
-        if ( parentTask.partialTourContains1 || newCity.equals( ONE ) )
-        {
-            partialTourContains1 = true;
-        }
+        partialTourContains1 = parentTask.partialTourContains1 || newCity.equals( ONE );
     }
     
     @Override public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
