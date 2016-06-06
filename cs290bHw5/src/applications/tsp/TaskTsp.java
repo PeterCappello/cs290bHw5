@@ -99,7 +99,8 @@ public class TaskTsp extends TaskRecursive<Tour>
     
     TaskTsp( TaskTsp parentTask, Integer newCity )
     {
-        if ( ! parentTask.partialTourContains1 && newCity.equals( TWO ) )
+        partialTourContains1 = parentTask.partialTourContains1 || newCity.equals( ONE );
+        if ( ! partialTourContains1 && newCity.equals( TWO ) )
         {
             pruneMe = true;
             return;
@@ -109,7 +110,6 @@ public class TaskTsp extends TaskRecursive<Tour>
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities ); 
         partialTour.add( newCity );
         unvisitedCities.remove( newCity );
-        partialTourContains1 = parentTask.partialTourContains1 || newCity.equals( ONE );
     }
     
     @Override public boolean isAtomic() { return unvisitedCities.size() <= MAX_UNVISITED_CITIES; }
