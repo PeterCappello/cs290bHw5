@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 Peter Cappello.
+ * Copyright 2015 peter.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,34 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package applications.euclideantsp;
+package applications.tsp;
 
-import api.ReturnValue;
-import api.TaskCompose;
-import java.util.Comparator;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  *
  * @author Peter Cappello
  */
-public class MinTour extends TaskCompose<Tour>
+public class Tour implements Comparable<Tour>, Serializable
 {
-    @Override
-    public ReturnValue call() 
+    final private List<Integer> tour;
+    final private double cost;
+    
+    /**
+     * Return container for TaskEuclideanTsp.
+     * @param tour
+     * @param cost
+     */
+    public Tour( List<Integer> tour, double cost ) 
     {
-//        Tour shortestTour = args().remove( 0 );
-//        for ( Tour tour : args() ) 
-//        {
-//            if ( tour.compareTo( shortestTour ) < 0 )
-//            {
-//                shortestTour = tour;
-//            }
-//        }
-//        return new ReturnValueTour( this, shortestTour );return new ReturnValueTour( this, 
-          return new ReturnValueTour( this, 
-                args().stream()
-                      .min( Comparator.comparingDouble( Tour::cost ) )
-                      .get() 
-        );
+        this.tour = tour;
+        this.cost = cost;
+    } 
+ 
+    public List<Integer> tour() { return tour; }
+    
+    public double cost() { return cost; }
+
+    @Override
+    public int compareTo( Tour tour )
+    { 
+        return this.cost < tour.cost ? -1 : this.cost > tour.cost ? 1 : 0;
     }
+    
+    @Override
+    public String toString() { return tour.toString() + "\n\tCost: " + cost; }
 }

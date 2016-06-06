@@ -92,10 +92,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     public ReturnValue compute( Task task )
     {
         initTimeMeasures();
-        for ( ComputerProxy computerProxy : computerProxies.values() )
-        {
-            computerProxy.notifyWorkerProxies();
-        }
+        computerProxies.values().forEach( ComputerProxy::notifyWorkerProxies );
         execute( task );
         return take();
     }

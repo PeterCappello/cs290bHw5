@@ -21,20 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package applications.euclideantsp;
+package applications.tsp;
 
 import api.ReturnValue;
-import static applications.euclideantsp.TaskTsp.CITIES;
+import static applications.tsp.TaskTsp.CITIES;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import system.Task;
+import util.EuclideanGraph;
 
 /**
  *
@@ -84,6 +86,7 @@ public class ReturnValueTour extends ReturnValue<Tour>
 
         final int margin = 10;
         final int field = NUM_PIXELS - 2*margin;
+        
         // draw edges
         graphics.setColor( Color.BLUE );
         int x1, y1, x2, y2;
@@ -114,8 +117,10 @@ public class ReturnValueTour extends ReturnValue<Tour>
             graphics.fillOval( x - VERTEX_DIAMETER/2,
                                y - VERTEX_DIAMETER/2,
                               VERTEX_DIAMETER, VERTEX_DIAMETER);
+            graphics.drawString( ( "" + i ), x + VERTEX_DIAMETER/2,
+                                             y + VERTEX_DIAMETER/2 );
         }
-        final ImageIcon imageIcon = new ImageIcon( image );
+        final ImageIcon imageIcon = new ImageIcon( image );                
         return new JLabel( imageIcon );
     }
 }

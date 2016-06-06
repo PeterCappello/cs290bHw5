@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package applications.euclideantsp;
+package applications.tsp;
 
 import api.JobRunner;
 import api.ReturnDecomposition;
@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import util.EuclideanGraph;
 import static util.EuclideanGraph.tourDistance;
 import util.Graph;
 
@@ -48,7 +47,7 @@ import util.Graph;
 public class TaskTsp extends TaskRecursive<Tour>
 { 
     // Configure Job
-    static final public double[][] CITIES =
+    static final public double[][] CITIES = //Graph.makeGraph( 15, 8 );
     {
 	{ 1, 1 },
 	{ 8, 1 },
@@ -92,8 +91,8 @@ public class TaskTsp extends TaskRecursive<Tour>
     {
         partialTour = Arrays.asList( 0 );
         unvisitedCities = IntStream.range( 1, CITIES.length )
-                .boxed()
-                .collect( Collectors.toList() );
+                                   .boxed()
+                                   .collect( Collectors.toList() );
         lowerBound = new LowerBoundNearestNeighbors();
 //        lowerBound = new LowerBoundPartialTour( partialTour );
     }
@@ -108,10 +107,10 @@ public class TaskTsp extends TaskRecursive<Tour>
         partialTour = new ArrayList<>( parentTask.partialTour );
         lowerBound = parentTask.lowerBound.make( parentTask, newCity );
         unvisitedCities = new LinkedList<>( parentTask.unvisitedCities ); 
-        
         partialTour.add( newCity );
         unvisitedCities.remove( newCity );
-        if ( newCity.equals( ONE ) )
+//        if ( newCity.equals( ONE ) )
+        if ( parentTask.partialTourContains1 || newCity.equals( ONE ) )
         {
             partialTourContains1 = true;
         }
@@ -127,12 +126,11 @@ public class TaskTsp extends TaskRecursive<Tour>
      */
      @Override public ReturnValue solve() 
     {
-        Stack<TaskTsp> stack = new Stack<>();
-        stack.push( this );
         SharedTour sharedTour = ( SharedTour ) shared();
         List<Integer> shortestTour = sharedTour.tour();
         double shortestTourCost = sharedTour.cost();
-        while ( ! stack.isEmpty() ) 
+        Stack<TaskTsp> stack = new Stack<>();
+        for ( stack.push( this ); ! stack.isEmpty(); ) 
         {
             TaskTsp currentTask = stack.pop();
             List<TaskTsp> children = currentTask.children( shortestTourCost );
@@ -143,13 +141,14 @@ public class TaskTsp extends TaskRecursive<Tour>
                     shortestTour = child.tour();
                     shortestTourCost = child.lowerBound().cost();
                     shared( new SharedTour( child.tour(), child.lowerBound().cost() ) );
+                    System.out.println( "new tour cost: " + shortestTourCost );
                 } 
                 else 
                 { 
                     stack.push( child );
                 } 
             }  
-        } 
+        }
         return new ReturnValueTour( this, new Tour( shortestTour, shortestTourCost ) );
     }
 
@@ -169,7 +168,7 @@ public class TaskTsp extends TaskRecursive<Tour>
     {
         return unvisitedCities.stream()
               .map( city -> new TaskTsp( this, city ))
-              .filter( child -> ( ! child.pruneMe && child.lowerBound().cost() < upperBound ) )
+              .filter( child -> ! child.pruneMe && child.lowerBound().cost() < upperBound )
               .collect( Collectors.toList() );
     }
     
@@ -194,5 +193,5 @@ public class TaskTsp extends TaskRecursive<Tour>
     
     public List<Integer> unvisitedCities() { return unvisitedCities; }
    
-    private boolean isComplete() { return unvisitedCities.isEmpty(); }
+    private boolean isComplete() { return unvisitedCities == null || unvisitedCities.isEmpty(); }
 }
