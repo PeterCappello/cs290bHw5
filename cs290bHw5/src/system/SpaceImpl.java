@@ -294,11 +294,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
         private void notifyWorkerProxies()
         {
             workerMap.values()
-                     .forEach( 
-                             workerProxy -> 
-                             {
-                                 synchronized ( workerProxy ) { workerProxy.notify(); } 
-                             }
+                     .forEach( workerProxy -> { synchronized ( workerProxy ) { workerProxy.notify(); } }
             );
         }
      
