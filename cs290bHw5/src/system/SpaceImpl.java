@@ -176,7 +176,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     { 
         numTasks.getAndIncrement();
         result.process( parentTask, this );
-//        t1 += result.taskRunTime();
     }
     
     public int makeTaskId() { return taskIds.incrementAndGet(); }
