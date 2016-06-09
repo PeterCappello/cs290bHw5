@@ -62,8 +62,8 @@ public class TaskTsp extends TaskRecursive<Tour>
 	{ 6, 6 },
 	{ 3, 6 },
 	{ 4, 4 },
-	{ 5, 4 },
-	{ 5, 5 },
+//	{ 5, 4 },
+//	{ 5, 5 },
 	{ 4, 5 }
     };
     static final private String FRAME_TITLE = "Euclidean TSP";
@@ -137,7 +137,6 @@ public class TaskTsp extends TaskRecursive<Tour>
                     shortestTour = child.tour();
                     shortestTourCost = child.lowerBound().cost();
                     shared( new SharedTour( child.tour(), child.lowerBound().cost() ) );
-                    System.out.println( "new tour cost: " + shortestTourCost );
                 } 
                 else 
                 { 

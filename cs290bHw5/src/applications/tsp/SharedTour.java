@@ -62,4 +62,9 @@ final public class SharedTour extends Shared<SharedTour>
     synchronized public List<Integer> tour() { return tour; }
     
     synchronized public double cost() { return cost; }
+    
+    synchronized public String toString()
+    {
+        return this.getClass().getCanonicalName() + " cost: " + cost;
+    }
 }

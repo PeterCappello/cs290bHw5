@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
+import java.util.stream.IntStream;
 import static util.EuclideanGraph.distance;
 import static util.EuclideanGraph.tourDistance;
 
@@ -52,13 +53,15 @@ final public class LowerBoundNearestNeighbors implements LowerBound
     public LowerBoundNearestNeighbors( final List<Deque<Integer>> nearestNeighbors, final double lowerBound ) 
     {
         List<Deque<Integer>> copyNearestNeighbors = new ArrayList<>();
-        for ( int city = 0; city < nearestNeighbors.size(); city++ )
-        {
-            Deque<Integer> deque = new ArrayDeque<>();
-            Integer[] array = nearestNeighbors.get( city ).toArray(new Integer[0]);
-            deque.addAll( Arrays.asList( array ) );
-            copyNearestNeighbors.add( deque );
-        }
+        IntStream.range( 0, nearestNeighbors.size() )
+                 .forEach( city ->
+                 {
+                    Deque<Integer> deque = new ArrayDeque<>();
+                    Integer[] array = nearestNeighbors.get( city ).toArray( new Integer[ 0 ] );
+                    deque.addAll( Arrays.asList( array ) );
+                    copyNearestNeighbors.add( deque );
+                 }
+                 );
         this.nearestNeighborsList = copyNearestNeighbors;
         this.lowerBound = lowerBound;
     }
@@ -189,6 +192,12 @@ final public class LowerBoundNearestNeighbors implements LowerBound
         System.out.println("Lower bound: " + lowerBoundNearestNeighbors.lowerBound + " expecting 5.");
     }
     
+    /**
+     * Unused.
+     * @param nearestNeighbors
+     * @param copyNearestNeighbors
+     * @return 
+     */
     private boolean nnEquals( final List<Deque<Integer>> nearestNeighbors, final List<Deque<Integer>> copyNearestNeighbors )
     {
         if ( nearestNeighbors.size() != copyNearestNeighbors.size() )
@@ -221,7 +230,7 @@ final public class LowerBoundNearestNeighbors implements LowerBound
     }
     
     /**
-     * Computes lower bound from scratch: not incrementally.
+     * Computes lower bound from scratch: not incrementally. Unused.
     */
     private double recomputeLowerBound( TaskTsp task, Integer newCity )
     {

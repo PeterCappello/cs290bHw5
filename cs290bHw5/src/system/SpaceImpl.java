@@ -41,6 +41,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import static system.Configuration.SPACE_CALLABLE;
 
 /**
@@ -61,8 +62,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     final private AtomicInteger numTasks = new AtomicInteger();
     final private ComputerImpl computerInternal;
           private Shared shared; // mutable but thread-safe: its state changes are synchronized on itself.
-          private long t1;
-          private long tInf;
     
     public SpaceImpl() throws RemoteException 
     {
@@ -177,7 +176,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     { 
         numTasks.getAndIncrement();
         result.process( parentTask, this );
-        t1 += result.taskRunTime();
+//        t1 += result.taskRunTime();
     }
     
     public int makeTaskId() { return taskIds.incrementAndGet(); }
@@ -190,12 +189,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
         waitingTaskMap.put( compose.id(), compose );
         assert waitingTaskMap.get( compose.id() ) != null;
     }
-    
-//    public void addReadyTask( Task task ) 
-//    { 
-//        assert waitingTaskMap.get( task.composeId() ) != null || task.composeId() == FINAL_RETURN_VALUE : task.composeId();
-//        readyTasks.add( task ); 
-//    }
     
     public void removeWaitingTask( int composeId )
     { 
@@ -210,29 +203,19 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     {
         if ( shared.shared( that ) )
         {
-            for ( ComputerProxy computerProxy : computerProxies.values() )
-            {
-                computerProxy.downShared( shared );
-            }
+            System.out.println( this.getClass().getCanonicalName() + ": " + shared );
+            computerProxies.values().forEach( computerProxy -> computerProxy.downShared( that ) );
         }
     }
-    
-    public void tInf( long tInf ) { this.tInf = tInf; }
-    
-    private void initTimeMeasures()
-    {
-        numTasks.getAndSet( 0 );
-        t1 = 0;
-        tInf = 0;
-    }
+        
+    private void initTimeMeasures() { numTasks.getAndSet( 0 ); }
     
     private void initShared( Shared shared )
     {
         this.shared = shared;
-        for ( ComputerProxy computerProxy : computerProxies.values() )
-        {
-            computerProxy.initShared( this.shared );
-        }
+        computerProxies.values()
+                       .forEach( computerProxy -> computerProxy.initShared( shared )
+        );
     }
     
     private void reportTimeMeasures( Return result )
@@ -253,24 +236,17 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
         ComputerProxy( Computer computer, int numWorkerProxies )
         { 
             this.computer = computer;
-            for ( int id = 0; id < numWorkerProxies; id++ )
-            {
-                WorkerProxy workerProxy = new WorkerProxy( id );
-                workerMap.put( id, workerProxy );
-            }
+            IntStream.range( 0, numWorkerProxies )
+                     .forEach( id ->  workerMap.put( id, new WorkerProxy( id ) ) );
         }
         
         private void startWorkerProxies()
         {
-            for ( WorkerProxy workerProxy : workerMap.values() )
-            {
-                workerProxy.start();
-            }
+            workerMap.values().forEach( WorkerProxy::start );
         }
         
         private void unregister( Task task, Computer computer, int workerProxyId )
         {
-//            readyTasks.add( task );
             addReadyTask( task );
             workerMap.remove( workerProxyId );
             Logger.getLogger( getClass().getName() )
@@ -303,7 +279,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
             }
         }
         
-//        @Override
         public void downShared( Shared shared ) { downSharedQ.add( Boolean.TRUE ); }
         
         public void initShared( Shared shared )
@@ -319,10 +294,13 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
         
         private void notifyWorkerProxies()
         {
-            for ( WorkerProxy workerProxy : workerMap.values() )
-            {
-               synchronized ( workerProxy ) { workerProxy.notify(); } 
-            }
+            workerMap.values()
+                     .forEach( 
+                             workerProxy -> 
+                             {
+                                 synchronized ( workerProxy ) { workerProxy.notify(); } 
+                             }
+            );
         }
      
         private class WorkerProxy extends Thread
@@ -345,7 +323,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
                     Task task = null;
                     try 
                     { 
-//                        task = readyTasks.take();
                         task = takeReadyTask();
                         processResult( task, computer.execute( task ) );
                     }

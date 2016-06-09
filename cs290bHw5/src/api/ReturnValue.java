@@ -71,7 +71,6 @@ abstract public class ReturnValue<T> extends Return
         }
         if ( composeId == SpaceImpl.FINAL_RETURN_VALUE )
         {
-            space.tInf( tInf() );
             space.putResult( this );
             return;
         }
