@@ -82,7 +82,7 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
     /**
      * Compute a Task and return its Return.
      * To ensure that the correct Return is returned, this must be the only
- computation that the Space is serving.
+     * computation that the Space is serving.
      * 
      * @param task
      * @return the Task's Return object.
@@ -111,7 +111,6 @@ public final class SpaceImpl extends UnicastRemoteObject implements Space
         ReturnValue result = take();
         reportTimeMeasures( result );
         return result;
-        
     }
     /**
      * Put a task into the Task queue.
